@@ -10,10 +10,13 @@ datasource db {
 
 model User {
   id          String      @id @default(uuid())
-  clerkUserId String       @unique
   email       String       @unique
-  name        String?
-  imageUrl    String
+  name        String
+  imageUrl    String?
+  otp String?
+  isVerified Boolean @default(false)
+  verificationToken String? @unique
+  password String
   transactions Transaction[]
   accounts    Account[]
   budgets     Budget[]
