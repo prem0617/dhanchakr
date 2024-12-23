@@ -76,7 +76,8 @@ const OTPForm = () => {
               disabled
               className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
             >
-              Loading
+              <Loader2 className="animate-spin " />
+              Please wait
             </Button>
           ) : (
             <Button

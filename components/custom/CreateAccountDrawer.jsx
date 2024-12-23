@@ -19,6 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "../ui/switch";
+import { useMutation } from "react-query";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 const CreateAccountDrawer = ({ children }) => {
   const [open, setOpen] = useState(false);
@@ -30,11 +34,38 @@ const CreateAccountDrawer = ({ children }) => {
     isDefault: false,
   });
 
-  // const
+  const {
+    mutate: createAccount,
+    isLoading,
+    isError,
+  } = useMutation({
+    mutationFn: async function (formData) {
+      try {
+        const response = await axios.post("/api/createAccount", formData);
+        if (response.data.error) {
+          throw new Error(response.data.error);
+        }
+        return response;
+      } catch (error) {
+        console.log(error);
+        throw new Error(
+          error.response?.data?.error ||
+            error.message ||
+            "An error occurred while creating the account"
+        );
+      }
+    },
+    onSuccess: () => {
+      toast.success("Account Created");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    createAccount(formData); // Make sure formData is correct and valid
   };
 
   return (
@@ -53,7 +84,6 @@ const CreateAccountDrawer = ({ children }) => {
               <Input
                 type="text"
                 id="name"
-                required
                 placeholder="Enter Name"
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -65,7 +95,6 @@ const CreateAccountDrawer = ({ children }) => {
                 Account Type
               </label>
               <Select
-                required
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, type: value }))
                 }
@@ -86,7 +115,6 @@ const CreateAccountDrawer = ({ children }) => {
               <Input
                 type="text"
                 id="balance"
-                required
                 placeholder="1000"
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, balance: e.target.value }))
@@ -115,9 +143,19 @@ const CreateAccountDrawer = ({ children }) => {
                   Cancle
                 </Button>
               </DrawerClose>
-              <Button type="submit" className="flex-1">
-                Create Account
-              </Button>
+              {isLoading ? (
+                <Button
+                  disabled
+                  className=" flex-1 bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
+                >
+                  <Loader2 className="animate-spin" />
+                  Please wait
+                </Button>
+              ) : (
+                <Button type="submit" className="flex-1">
+                  Create Account
+                </Button>
+              )}
             </div>
           </form>
         </div>

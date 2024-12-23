@@ -34,7 +34,7 @@ export async function POST(request) {
       );
 
     const payload = {
-      id: isUserExist._id,
+      id: isUserExist.id,
       email: isUserExist.email,
     };
 

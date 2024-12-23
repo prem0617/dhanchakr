@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -84,10 +85,11 @@ function Login() {
           </p>
           {isLoading ? (
             <Button
-              className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
               disabled
+              className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
             >
-              Loading
+              <Loader2 className="animate-spin " />
+              Please wait
             </Button>
           ) : (
             <Button className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2">

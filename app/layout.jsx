@@ -3,6 +3,7 @@ import "./globals.css";
 import Footer from "@/components/custom/Footer";
 import Header from "@/components/custom/Header";
 import ReactQueryWrapper from "./query-client-wrapper"; // Import the client-side wrapper
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
 
         {/* Footer */}
         <Footer />
+        <Toaster />
       </body>
     </html>
   );
