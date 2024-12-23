@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "../ui/switch";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";

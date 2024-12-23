@@ -45,7 +45,12 @@ export async function POST(request) {
 
     const jwtToken = await jwt.sign(payload, process.env.JWT_SECRET);
 
-    response.cookies.set("jwttoken", jwtToken);
+    response.cookies.set("jwttoken", jwtToken, {
+      httpOnly: true,
+      sameSite: "Strict",
+      path: "/", // Makes the cookie accessible across the site
+      maxAge: 10 * 24 * 60 * 60, // 10 days in seconds
+    });
 
     return response;
   } catch (error) {

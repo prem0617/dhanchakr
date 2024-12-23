@@ -9,8 +9,8 @@ export const getUserId = async (req) => {
 
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log(payload);
-    console.log(token);
+    // console.log(payload);
+    // console.log(token);
 
     if (payload.id) {
       const userId = payload.id;

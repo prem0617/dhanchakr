@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });

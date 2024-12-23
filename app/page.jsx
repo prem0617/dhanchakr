@@ -1,3 +1,5 @@
+"use client";
+
 import HeroSection from "@/components/custom/Hero";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -6,9 +8,34 @@ import {
   statsData,
   testimonialsData,
 } from "@/data/landing";
+import axios from "axios";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
+  const { data, isRefetching, refetch } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: async function () {
+      try {
+        const response = await axios.get("./api/auth/getMe");
+        console.log(response);
+        if (response.data.error || response.error)
+          throw new Error(
+            response?.data?.error || response?.error || "Error in Get Me "
+          );
+        return response.data;
+      } catch (error) {
+        console.log(
+          response?.data?.error || response?.error || "Error in Get Me "
+        );
+        throw new Error(
+          response?.data?.error || response?.error || "Error in Get Me "
+        );
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <div className="pt-40">
       <HeroSection />

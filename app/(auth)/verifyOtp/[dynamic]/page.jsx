@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const OTPForm = () => {
