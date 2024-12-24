@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "../ui/switch";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
@@ -33,6 +33,8 @@ const CreateAccountDrawer = ({ children }) => {
     type: "",
     isDefault: false,
   });
+
+  const queryClient = useQueryClient();
 
   const {
     mutate: createAccount,
@@ -57,6 +59,8 @@ const CreateAccountDrawer = ({ children }) => {
     },
     onSuccess: () => {
       toast.success("Account Created");
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      setOpen((prev) => !prev);
     },
     onError: (error) => {
       toast.error(error.message);

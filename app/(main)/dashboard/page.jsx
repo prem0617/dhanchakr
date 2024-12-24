@@ -1,7 +1,9 @@
 "use client";
 
+import AccountCard from "@/components/custom/AccountCard";
 import CreateAccountDrawer from "@/components/custom/CreateAccountDrawer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Plus } from "lucide-react";
@@ -50,10 +52,27 @@ const Dashboard = () => {
           accounts.length > 0 &&
           !isLoading &&
           accounts.map((data, index) => (
-            <div key={index}>
-              <div>{data.name}</div>
-            </div>
+            <AccountCard key={index} data={data} />
           ))}
+
+        {!accounts && isLoading && (
+          <>
+            <div className="flex flex-col space-y-3">
+              <Skeleton className="h-full w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            </div>
+            <div className="flex flex-col space-y-3">
+              <Skeleton className="h-full w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
