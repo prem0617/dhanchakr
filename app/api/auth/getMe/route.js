@@ -19,6 +19,10 @@ export async function GET(req) {
       where: {
         id: userId,
       },
+      select: {
+        name: true,
+        email: true,
+      },
     });
 
     if (!user) {

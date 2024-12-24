@@ -1,17 +1,59 @@
 "use client"; // Marking this as a client component
 
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { CircleUserIcon, LayoutDashboard, PenBox } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 function Header() {
   const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
   });
-  console.log(authUser);
+  const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  // Update user state from localStorage or query data
+  useEffect(() => {
+    const storedUser = localStorage.getItem("authUser");
+    if (authUser) {
+      setUser(authUser);
+    } else if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
+    }
+  }, [authUser]);
+
+  const { mutate: logout } = useMutation({
+    mutationFn: async () => {
+      const response = await axios.get("/api/auth/logout");
+      if (response.data.error) {
+        throw new Error(response.data.error || "Error in Logout");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("authUser");
+      queryClient.removeQueries("authUser");
+
+      queryClient.removeQueries({ queryKey: ["authUser"] });
+
+      localStorage.removeItem("authUser");
+
+      setUser(null); // Clear user state
+      router.push("/login");
+    },
+  });
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <nav className="container mx-auto p-4 flex items-center justify-between">
@@ -19,11 +61,10 @@ function Header() {
           href={"/"}
           className="text-gray-600 hover:text-blue-600 flex items-center gap-2"
         >
-          {/* <Image width={100} height={20}/> */}
           <p className="font-semibold text-3xl">Dhan Chakr</p>
         </Link>
 
-        {authUser && !isLoading && (
+        {user && !isLoading ? (
           <div className="flex items-center space-x-4">
             <Link href={"/dashboard"}>
               <Button variant="outline">
@@ -42,22 +83,34 @@ function Header() {
             <Popover>
               <PopoverTrigger>
                 <div className="flex justify-center items-center gap-2 border-2 rounded-md px-4 py-[6px] cursor-pointer">
-                  <CircleUserIcon size={18} />{" "}
+                  <CircleUserIcon size={18} />
                   <span className="text-sm font-medium">Profile</span>
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-96 mx-5 mt-2">
+              <PopoverContent className="w-96 mx-5 mt-2 space-y-2">
                 <div>
-                  <span className="font-medium">Name : </span> {authUser.name}
+                  <span className="font-medium">Name : </span> {user?.name}
                 </div>
                 <div>
-                  <span className="font-medium">Email :</span> {authUser.email}
+                  <span className="font-medium">Email :</span> {user?.email}
                 </div>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="w-full border-red-500 border-2 text-red-500 hover:text-red-500"
+                >
+                  Logout
+                </Button>
               </PopoverContent>
             </Popover>
           </div>
+        ) : (
+          !isLoading && (
+            <Link href={"/login"}>
+              <Button>Login</Button>
+            </Link>
+          )
         )}
-        {!authUser && !isLoading && <Button>Login</Button>}
       </nav>
     </div>
   );

@@ -11,37 +11,41 @@ import {
 import axios from "axios";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function Home() {
-  const { data, isRefetching, refetch } = useQuery({
+  const { data, isRefetching } = useQuery({
     queryKey: ["authUser"],
     queryFn: async function () {
       try {
-        const response = await axios.get("./api/auth/getMe");
-        console.log(response);
-        if (response.data.error || response.error)
-          throw new Error(
-            response?.data?.error || response?.error || "Error in Get Me "
-          );
+        const response = await axios.get("./api/auth/getMe", {
+          withCredentials: true,
+        });
+        if (response.data.error) {
+          throw new Error(response.data.error);
+        }
         return response.data;
       } catch (error) {
-        console.log(
-          response?.data?.error || response?.error || "Error in Get Me "
-        );
-        throw new Error(
-          response?.data?.error || response?.error || "Error in Get Me "
-        );
+        // console.error(error.message || "Error in Get Me");
+        throw error;
       }
     },
     refetchOnWindowFocus: false,
   });
+
+  // Set `authUser` in localStorage only when data is updated
+  useEffect(() => {
+    if (data) {
+      console.log("Auth user data updated:", data);
+      localStorage.setItem("authUser", JSON.stringify(data));
+    }
+  }, [data]);
 
   return (
     <div className="pt-40">
       <HeroSection />
 
       {/* Stats */}
-
       <section className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -58,7 +62,6 @@ export default function Home() {
       </section>
 
       {/* Cards */}
-
       <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -79,7 +82,6 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-
       <section className="py-20 bg-blue-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-16">
@@ -99,7 +101,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/*  */}
+      {/* What Our Users Say */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
