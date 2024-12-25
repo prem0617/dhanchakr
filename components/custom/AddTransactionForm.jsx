@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import CreateAccountDrawer from "./CreateAccountDrawer";
 import { defaultCategories } from "@/data/category";
 import { useRouter } from "next/navigation";
+import ScanFile from "./ScanFile";
 
 const AddTransactionForm = ({ accounts }) => {
   const [date, setDate] = useState();
@@ -109,17 +110,6 @@ const AddTransactionForm = ({ accounts }) => {
     e.preventDefault();
     // console.log(formData);
 
-    // console.log({
-    //   amount: formData.amount,
-    //   expenseType: formData.expenseType,
-    //   accountId: formData.accountId,
-    //   category: formData.category,
-    //   date: formData.date,
-    //   description: formData.description,
-    //   isRecurring: formData.isRecurring,
-    //   recurringInterval: formData.isRecurring ? formData.recurringInterval : "",
-    // });
-
     addTransaction(formData);
   };
 
@@ -128,14 +118,32 @@ const AddTransactionForm = ({ accounts }) => {
     setFormData((prev) => ({ ...prev, date: selectedDate }));
   };
 
+  const handleScanData = (scanData) => {
+    console.log(scanData);
+    formData.amount = scanData.amount;
+    if (scanData.date) {
+      setDate(new Date(scanData.date));
+      formData.date = scanData.date;
+    }
+    if (scanData.description) formData.description = scanData.description;
+    if (scanData.category) formData.category = scanData.category;
+    scanData.expenseType
+      ? (formData.expenseType = scanData.expenseType)
+      : formData.expenseType;
+
+    console.log(formData);
+  };
+
   // console.log( accounts);
   return (
     <div className="mt-5">
       <form action="" className="space-y-4" onSubmit={handleFormSubmit}>
-        <div>
+        {/* <div>
           <label className="text-sm font-medium" htmlFor="image"></label>
           <Input type="text" placeholder="IMAGE" />
-        </div>
+        </div> */}
+
+        <ScanFile scanedData={handleScanData} />
 
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="type">
@@ -145,6 +153,7 @@ const AddTransactionForm = ({ accounts }) => {
             onValueChange={(value) =>
               setFormData((prev) => ({ ...prev, expenseType: value }))
             }
+            value={formData.expenseType}
           >
             <SelectTrigger className="w-full" id="type">
               <SelectValue
@@ -166,6 +175,7 @@ const AddTransactionForm = ({ accounts }) => {
               Amount
             </label>
             <Input
+              value={formData.amount}
               type="text"
               placeholder="0.00"
               id="amount"
@@ -180,6 +190,7 @@ const AddTransactionForm = ({ accounts }) => {
               Account
             </label>
             <Select
+              value={formData.accountId}
               onValueChange={(value) =>
                 setFormData((prev) => ({ ...prev, accountId: value }))
               }
@@ -216,6 +227,7 @@ const AddTransactionForm = ({ accounts }) => {
             Category
           </label>
           <Select
+            value={formData.category}
             onValueChange={(value) =>
               setFormData((prev) => ({ ...prev, category: value }))
             }
@@ -261,6 +273,7 @@ const AddTransactionForm = ({ accounts }) => {
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
+                value={formData.date}
                 mode="single"
                 selected={date}
                 onSelect={handleDateChange}
@@ -278,6 +291,7 @@ const AddTransactionForm = ({ accounts }) => {
           </label>
           <Input
             type="text"
+            value={formData.description}
             id="description"
             placeholder="Enter description"
             onChange={(e) =>
@@ -295,6 +309,7 @@ const AddTransactionForm = ({ accounts }) => {
           </div>
           <div>
             <Switch
+              value={formData.isRecurring}
               onCheckedChange={(value) =>
                 setFormData((prev) => ({ ...prev, isRecurring: value }))
               }
@@ -308,6 +323,7 @@ const AddTransactionForm = ({ accounts }) => {
               Recurring Interval
             </label>
             <Select
+              value={formData.recurringInterval}
               onValueChange={(value) =>
                 setFormData((prev) => ({ ...prev, recurringInterval: value }))
               }
