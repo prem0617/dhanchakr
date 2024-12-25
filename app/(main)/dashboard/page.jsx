@@ -10,25 +10,7 @@ import { Plus } from "lucide-react";
 import React from "react";
 
 const Dashboard = () => {
-  const { data: accounts, isLoading } = useQuery({
-    queryKey: ["accounts"],
-    queryFn: async () => {
-      try {
-        const response = await axios.get("/api/getAccount");
-        console.log(response);
-        if (response.error || response.data.error)
-          throw new Error(
-            response.error || response.data.error || "Error in getAccout"
-          );
-        return response.data.accounts;
-      } catch (error) {
-        console.log(error);
-        throw new Error(
-          response.error || response.data.error || "Error in getAccout"
-        );
-      }
-    },
-  });
+  const { data: accounts, isLoading } = useQuery({ queryKey: ["accounts"] });
 
   console.log(accounts);
 

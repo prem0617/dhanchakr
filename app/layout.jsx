@@ -7,6 +7,11 @@ import Header from "@/components/custom/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const metadata = {
+  title: "Dhan Chakr",
+  description: "",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

@@ -2,9 +2,9 @@ import { getUserId } from "@/helpers/getUserId";
 import { db } from "@/lib/primsa";
 import { NextResponse } from "next/server";
 
-export async function GET(request) {
+export async function GET(req) {
   try {
-    const userId = await getUserId(request);
+    const userId = await getUserId(req);
 
     console.log(userId);
 
@@ -24,20 +24,23 @@ export async function GET(request) {
       orderBy: {
         createdAt: "desc",
       },
-      //   include: {
-      //     _count: {
-      //       select: {
-      //         transaction: true,
-      //       },
-      //     },
-      //   },
+      include: {
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ accounts, success: true });
   } catch (error) {
     console.log(error.message || error || "Error in Get Account Route");
-    return NextResponse.json({
-      error: error.message || error || "Error in Get Account Route",
-    });
+    return NextResponse.json(
+      {
+        error: error.message || error || "Error in Get Account Route",
+      },
+      { status: 500 }
+    );
   }
 }
