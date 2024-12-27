@@ -3,34 +3,22 @@ import { db } from "@/lib/primsa";
 import { NextResponse } from "next/server";
 
 function toISO8601(date) {
-  // Ensure the input is a valid Date object
   const validDate = new Date(date);
-
   if (isNaN(validDate.getTime())) {
     throw new Error("Invalid date provided");
   }
-
   return validDate.toISOString();
 }
 
-function nextRecurringDate(startDate, interval) {
+function calculateNextRecurringDate(startDate, interval) {
   const date = new Date(startDate);
-
-  switch (interval) {
-    case "DAILY":
-      date.setDate(date.getDate() + 1);
-      break;
-    case "WEEKLY":
-      date.setDate(date.getDate() + 7);
-      break;
-    case "MONTHLY":
-      date.setMonth(date.getMonth() + 1);
-      break;
-    case "YEARLY":
-      date.setFullYear(date.getFullYear() + 1);
-      break;
-  }
-
+  const intervals = {
+    DAILY: () => date.setDate(date.getDate() + 1),
+    WEEKLY: () => date.setDate(date.getDate() + 7),
+    MONTHLY: () => date.setMonth(date.getMonth() + 1),
+    YEARLY: () => date.setFullYear(date.getFullYear() + 1),
+  };
+  if (intervals[interval]) intervals[interval]();
   return date;
 }
 
@@ -45,140 +33,133 @@ export async function POST(req) {
       description,
       isRecurring,
       recurringInterval,
+      transactionId,
+      updateTransaction,
     } = await req.json();
 
-    // if (!amount || !expenseType || !accountId || !category || !date) {
-    //   return NextResponse.json(
-    //     { error: "Fill All The Required Field", success: false },
-    //     { status: 400 }
-    //   );
-    // }
-
-    // Generate through CHATGPT
-
-    if (!expenseType) {
+    if (!expenseType || !amount || !accountId || !category || !date) {
       return NextResponse.json(
-        { error: "Expense Type is required", success: false },
+        {
+          error: "All required fields must be provided",
+          success: false,
+        },
         { status: 400 }
       );
     }
-
-    if (!amount) {
-      return NextResponse.json(
-        { error: "Amount is required", success: false },
-        { status: 400 }
-      );
-    }
-
-    if (!accountId) {
-      return NextResponse.json(
-        { error: "Account is required", success: false },
-        { status: 400 }
-      );
-    }
-
-    if (!category) {
-      return NextResponse.json(
-        { error: "Category is required", success: false },
-        { status: 400 }
-      );
-    }
-
-    if (!date) {
-      return NextResponse.json(
-        { error: "Date is required", success: false },
-        { status: 400 }
-      );
-    }
-
-    // console.log({
-    //   amount,
-    //   expenseType,
-    //   accountId,
-    //   category,
-    //   date,
-    //   description,
-    //   isRecurring,
-    //   recurringInterval,
-    // });
 
     const userId = await getUserId(req);
-
-    console.log(userId);
-
-    // check user login chhe k nai
-
     if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized: Unable to retrieve user ID." },
+        {
+          error: "Unauthorized: Unable to retrieve user ID",
+        },
         { status: 401 }
       );
     }
 
-    const isAccountExixit = await db.account.findUnique({
-      where: {
-        id: accountId,
-        userId: userId,
-      },
+    const account = await db.account.findUnique({
+      where: { id: accountId, userId },
     });
-
-    if (!isAccountExixit)
+    if (!account) {
       return NextResponse.json(
-        { error: "Account Not Found", success: false },
+        {
+          error: "Account not found",
+          success: false,
+        },
         { status: 404 }
       );
+    }
 
-    const splitedDate = date.split("{")[0];
-    // console.log(splitedDate);
-
-    const formatedDate = toISO8601(splitedDate);
-    // console.log(formatedDate);
-
+    const formattedDate = toISO8601(date.split("{")[0]);
     const numericAmount = parseFloat(amount);
+    let transaction,
+      balanceAdjustment = 0;
 
-    const balanceChanged =
-      expenseType === "INCOME" ? numericAmount : -numericAmount;
+    if (updateTransaction) {
+      const existingTransaction = await db.transaction.findUnique({
+        where: { id: transactionId, userId },
+      });
+      if (!existingTransaction) {
+        return NextResponse.json(
+          {
+            error: "Transaction not found",
+            success: false,
+          },
+          { status: 404 }
+        );
+      }
 
-    console.log("Balance changed", balanceChanged);
+      balanceAdjustment =
+        (expenseType === "INCOME" ? numericAmount : -numericAmount) -
+        (existingTransaction.type === "INCOME"
+          ? existingTransaction.amount
+          : -existingTransaction.amount);
 
-    const newBalance = isAccountExixit.balance.toNumber() + balanceChanged;
+      transaction = await db.transaction.update({
+        where: { id: transactionId },
+        data: {
+          amount: numericAmount,
+          description,
+          date: formattedDate,
+          category,
+          type: expenseType,
+          isRecurring,
+          recurringInterval,
+          nextRecurringDate:
+            isRecurring && recurringInterval
+              ? calculateNextRecurringDate(date, recurringInterval)
+              : null,
+        },
+      });
+    } else {
+      balanceAdjustment =
+        expenseType === "INCOME" ? numericAmount : -numericAmount;
 
-    console.log("new balance : ", newBalance);
+      const accountBalance = account.balance;
 
-    const newTransaction = await db.transaction.create({
-      data: {
-        amount: numericAmount,
-        description,
-        date: formatedDate,
-        category,
-        type: expenseType,
-        isRecurring,
-        recurringInterval,
-        nextRecurringDate:
-          isRecurring && recurringInterval
-            ? nextRecurringDate(date, recurringInterval)
-            : null,
-        user: { connect: { id: userId } },
-        account: { connect: { id: accountId } },
-      },
-    });
+      console.log("Account balance", accountBalance);
+      console.log("Check amount : ");
+
+      const checkedAmount = Number(accountBalance) + Number(balanceAdjustment);
+
+      if (checkedAmount < 0) {
+        return NextResponse.json({
+          error: `Cannot add Transaction. Account Balance is ${parseFloat(
+            accountBalance
+          ).toFixed(2)}`,
+        });
+      }
+
+      transaction = await db.transaction.create({
+        data: {
+          amount: numericAmount,
+          description,
+          date: formattedDate,
+          category,
+          type: expenseType,
+          isRecurring,
+          recurringInterval,
+          nextRecurringDate:
+            isRecurring && recurringInterval
+              ? calculateNextRecurringDate(date, recurringInterval)
+              : null,
+          user: { connect: { id: userId } },
+          account: { connect: { id: accountId } },
+        },
+      });
+    }
 
     await db.account.update({
-      where: {
-        userId: userId,
-        id: accountId,
-      },
-      data: {
-        balance: parseFloat(newBalance),
-      },
+      where: { id: accountId, userId },
+      data: { balance: account.balance.toNumber() + balanceAdjustment },
     });
 
-    return NextResponse.json({ newTransaction, success: true });
+    return NextResponse.json({ transaction, success: true });
   } catch (error) {
-    console.log(error.message || error || "Error in Add Transaction");
+    console.error("Error in Add Transaction", error);
     return NextResponse.json(
       {
-        error: error.message || error || "Error in Add Transaction",
+        error: error.message || "An unexpected error occurred",
       },
       { status: 500 }
     );

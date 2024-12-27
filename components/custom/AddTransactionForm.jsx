@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import {
   Select,
@@ -19,12 +19,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "../ui/switch";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import CreateAccountDrawer from "./CreateAccountDrawer";
 import { defaultCategories } from "@/data/category";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ScanFile from "./ScanFile";
 
 const AddTransactionForm = ({ accounts }) => {
@@ -47,6 +47,10 @@ const AddTransactionForm = ({ accounts }) => {
 
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
+  const transactionId = searchParams.get("edit");
+
   const intervalArray = [
     { id: 1, name: "DAILY" },
     { id: 2, name: "WEEKLY" },
@@ -58,18 +62,73 @@ const AddTransactionForm = ({ accounts }) => {
 
   const queryClient = useQueryClient();
 
+  // Use when user want to edit a Transaction
+
+  let updateTransaction = false;
+
+  const { mutate } = useMutation({
+    mutationFn: async ({ transactionId, updateTransaction }) => {
+      try {
+        console.log({ transactionId, updateTransaction });
+        const response = await axios.post("/api/getTransactionData", {
+          transactionId,
+          updateTransaction,
+        });
+        // console.log(response);
+        if (response.error) {
+          throw new Error("Error in GetTransaction");
+        }
+        return response.data.transactionAcc;
+      } catch (error) {
+        console.log(error.message || error || "Error in GetTransaction");
+        throw new Error(error.message || error || "Error in GetTransaction");
+      }
+    },
+    onSuccess: (data) => {
+      setFormData({
+        amount: data.amount ?? "", // Use nullish coalescing for undefined/null
+        expenseType: data.type ?? "",
+        accountId: data.accountId ?? "",
+        category: data.category ?? "",
+        date: data.date ? new Date(data.date) : "", // Convert date safely
+        description: data.description ?? "",
+        isRecurring: !!data.isRecurring, // Ensure it's a boolean
+        recurringInterval: data.isRecurring ? data.recurringInterval ?? "" : "", // Handle conditionally
+      });
+      setDate(new Date(data.date));
+    },
+  });
+
+  if (transactionId) {
+    updateTransaction = true;
+  }
+
+  useEffect(() => {
+    if (updateTransaction) mutate({ transactionId, updateTransaction });
+  }, [transactionId]);
+
+  // Use when user want to make new Transaction or add edit transaction
+
   const { mutate: addTransaction, isPending } = useMutation({
     mutationFn: async function ({
-      amount,
-      expenseType,
-      accountId,
-      category,
-      date,
-      description,
-      isRecurring,
-      recurringInterval,
+      formData,
+      updateTransaction,
+      transactionId,
     }) {
+      const {
+        amount,
+        expenseType,
+        accountId,
+        category,
+        date,
+        description,
+        isRecurring,
+        recurringInterval,
+      } = formData;
+
       try {
+        console.log("updateTransaction", updateTransaction);
+
         const response = await axios.post("/api/addTransaction", {
           amount,
           expenseType,
@@ -79,13 +138,15 @@ const AddTransactionForm = ({ accounts }) => {
           description,
           isRecurring,
           recurringInterval: isRecurring ? recurringInterval : null,
+          updateTransaction,
+          transactionId,
         });
         if (response.error || response.data.error)
           throw new Error(
             response.data.error || response.error || "Error in add transaction"
           );
         console.log(response);
-        return response.data.newTransaction;
+        return response.data.transaction;
       } catch (error) {
         throw new Error(
           error.response?.data?.error ||
@@ -110,7 +171,11 @@ const AddTransactionForm = ({ accounts }) => {
     e.preventDefault();
     // console.log(formData);
 
-    addTransaction(formData);
+    addTransaction({
+      formData,
+      updateTransaction,
+      transactionId: transactionId ? transactionId : null,
+    });
   };
 
   const handleDateChange = (selectedDate) => {
@@ -138,11 +203,6 @@ const AddTransactionForm = ({ accounts }) => {
   return (
     <div className="mt-5">
       <form action="" className="space-y-4" onSubmit={handleFormSubmit}>
-        {/* <div>
-          <label className="text-sm font-medium" htmlFor="image"></label>
-          <Input type="text" placeholder="IMAGE" />
-        </div> */}
-
         <ScanFile scanedData={handleScanData} />
 
         <div className="space-y-2">
@@ -363,7 +423,7 @@ const AddTransactionForm = ({ accounts }) => {
             </Button>
           ) : (
             <Button type="submit" className="flex-1">
-              Create Account
+              Create Transaction
             </Button>
           )}
         </div>

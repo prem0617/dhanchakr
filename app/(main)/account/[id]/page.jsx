@@ -1,14 +1,64 @@
 "use client";
 
+import AddLimit from "@/components/custom/AddLimit";
+import Transactiontable from "@/components/custom/Transactiontable";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 const Account = () => {
   const { id } = useParams();
-  // console.log(id);
+
+  const [transactionData, setTransactionData] = useState();
+
+  const { mutate: getCSVFile, isPending: loadingCSV } = useMutation({
+    mutationFn: async (id) => {
+      try {
+        const response = await axios.post(
+          "/api/getCSVFile",
+          { accountId: id },
+          {
+            responseType: "blob", // Ensures the response is treated as a file (binary data)
+          }
+        );
+        console.log(response);
+        if (response.error)
+          throw new Error(
+            response.error || response.error.message || "Error in Make CSV file"
+          );
+        return response.data;
+      } catch (error) {
+        throw new Error(error || error.message || "Error in Make CSV file");
+      }
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      const blob = new Blob([data], { type: "text/csv" });
+      console.log(blob);
+
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary anchor element to trigger the download
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "expenses.csv");
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup after the download
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+  });
+
+  const handleCSVFile = () => {
+    // console.log("Clicked");
+    getCSVFile(id);
+  };
 
   const { data: accountData, isLoading } = useQuery({
     queryKey: ["accountData"],
@@ -47,32 +97,70 @@ const Account = () => {
       </div>
     );
 
-  console.log(accountData);
+  console.log(accountData?.transactions);
+
+  // const [deleteIds, setDeleteIds] = useState([]);
+
+  // console.log(deleteIds);
 
   return (
-    <div className="space-y-8 px-5 flex items-end justify-between gap-4">
-      <div>
-        <h1 className="text-5xl sm:text-6xl font-bold gradient-title capitalize">
-          {accountData.name}
-        </h1>
-        <p className="text-muted-foreground">
-          {accountData.type.charAt(0) + accountData.type.slice(1).toLowerCase()}{" "}
-          Account
-        </p>
+    <div className="space-y-8 px-5 ">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-5xl sm:text-6xl font-bold gradient-title capitalize">
+            {accountData.name}
+          </h1>
+          <p className="text-muted-foreground">
+            {accountData.type.charAt(0) +
+              accountData.type.slice(1).toLowerCase()}{" "}
+            Account
+          </p>
+        </div>
+
+        <div className="pb-2 text-right">
+          <div className="text-xl sm:text-2xl font-bold">
+            {parseFloat(accountData.balance).toFixed(2)}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {accountData._count.transactions} Transactions
+          </p>
+        </div>
       </div>
 
-      <div className="pb-2 text-right">
-        <div className="text-xl sm:text-2xl font-bold">
-          {parseFloat(accountData.balance).toFixed(2)}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {accountData._count.transactions} Transactions
-        </p>
-      </div>
+      <AddLimit accountData={accountData} />
 
       {/* Chart Section */}
 
       {/* Transaction Table */}
+
+      {accountData.transactions && (
+        <Transactiontable
+          transactions={accountData.transactions}
+          // setDeleteIds={setDeleteIds}
+        />
+      )}
+      <div className="flex justify-end w-full">
+        {loadingCSV ? (
+          <Button
+            variant="outline"
+            className={`bg-cyan-500 text-white hover:bg-cyan-700 hover:text-white w-[150px]`}
+            disabled
+          >
+            <span className="flex justify-center items-center">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
+            </span>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className={`bg-cyan-500 text-white hover:bg-cyan-700 hover:text-white transition-all duration-200 w-[150px]`}
+            disabled={isLoading}
+            onClick={handleCSVFile}
+          >
+            Export as CSV
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

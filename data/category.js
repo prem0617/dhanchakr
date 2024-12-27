@@ -154,7 +154,7 @@ export const defaultCategories = [
   },
   {
     id: "other-expense",
-    name: "Other Expenses",
+    name: "Other-Expenses",
     type: "EXPENSE",
     color: "#94a3b8", // slate-400
     icon: "MoreHorizontal",
@@ -162,6 +162,6 @@ export const defaultCategories = [
 ];
 
 export const categoryColors = defaultCategories.reduce((acc, category) => {
-  acc[category.id] = category.color;
+  acc[category.name] = category.color;
   return acc;
 }, {});
