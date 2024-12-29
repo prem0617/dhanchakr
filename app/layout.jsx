@@ -4,6 +4,7 @@ import Footer from "@/components/custom/Footer";
 import ReactQueryWrapper from "./query-client-wrapper"; // Import the client-side wrapper
 import { Toaster } from "react-hot-toast";
 import Header from "@/components/custom/Header";
+import FetchAllData from "@/components/custom/FetchAllData";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         {/* Wrap your children with QueryClientWrapper to use React Query */}
         <ReactQueryWrapper>
           <Header />
+          <FetchAllData />
 
           <main className="min-h-screen">{children}</main>
         </ReactQueryWrapper>

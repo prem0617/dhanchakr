@@ -14,32 +14,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { data, isRefetching } = useQuery({
+  const { data: authUser, isLoading } = useQuery({
     queryKey: ["authUser"],
-    queryFn: async function () {
-      try {
-        const response = await axios.get("./api/auth/getMe", {
-          withCredentials: true,
-        });
-        if (response.data.error) {
-          throw new Error(response.data.error);
-        }
-        return response.data;
-      } catch (error) {
-        // console.error(error.message || "Error in Get Me");
-        throw error;
-      }
-    },
-    refetchOnWindowFocus: false,
   });
-
-  // Set `authUser` in localStorage only when data is updated
-  useEffect(() => {
-    if (data) {
-      console.log("Auth user data updated:", data);
-      localStorage.setItem("authUser", JSON.stringify(data));
-    }
-  }, [data]);
 
   return (
     <div className="pt-40">

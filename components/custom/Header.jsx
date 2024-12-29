@@ -17,15 +17,9 @@ function Header() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  // Update user state from localStorage or query data
   useEffect(() => {
-    const storedUser = localStorage.getItem("authUser");
     if (authUser) {
       setUser(authUser);
-    } else if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      setUser(null);
     }
   }, [authUser]);
 
@@ -42,8 +36,6 @@ function Header() {
       queryClient.removeQueries("authUser");
 
       queryClient.removeQueries({ queryKey: ["authUser"] });
-
-      localStorage.removeItem("authUser");
 
       setUser(null); // Clear user state
       router.push("/login");
@@ -93,6 +85,9 @@ function Header() {
                 </div>
                 <div>
                   <span className="font-medium">Email :</span> {user?.email}
+                </div>
+                <div>
+                  <span className="font-medium">ID :</span> {user?.email}
                 </div>
                 <Button
                   onClick={handleLogout}
