@@ -22,6 +22,7 @@ export async function GET(req) {
       select: {
         name: true,
         email: true,
+        id: true,
       },
     });
 

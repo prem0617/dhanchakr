@@ -30,17 +30,23 @@ import ScanFile from "./ScanFile";
 const AddTransactionForm = ({ accounts }) => {
   const [date, setDate] = useState();
 
+  const defaultAccountId =
+    accounts?.find((account) => account.isDefault)?.id ||
+    (accounts?.length > 0 ? accounts[0].id : "");
+
   const [formData, setFormData] = useState({
     amount: "",
     expenseType: "",
-    accountId: "",
+    accountId: defaultAccountId, // Initialize with the default account ID
     category: "",
     date: "",
     description: "",
     isRecurring: false,
-    recurringInterval: this.isRecurring && "",
+    recurringInterval: "",
+    isSplit: false,
+    participants: [],
+    numberOfUsers: 0,
   });
-
   const filteredCategory = defaultCategories.filter(
     (data) => data.type === formData.expenseType
   );
@@ -65,6 +71,8 @@ const AddTransactionForm = ({ accounts }) => {
   // Use when user want to edit a Transaction
 
   let updateTransaction = false;
+
+  console.log(formData);
 
   const { mutate } = useMutation({
     mutationFn: async ({ transactionId, updateTransaction }) => {
@@ -124,6 +132,9 @@ const AddTransactionForm = ({ accounts }) => {
         description,
         isRecurring,
         recurringInterval,
+        isSplit,
+        participants,
+        numberOfUsers,
       } = formData;
 
       try {
@@ -140,6 +151,9 @@ const AddTransactionForm = ({ accounts }) => {
           recurringInterval: isRecurring ? recurringInterval : null,
           updateTransaction,
           transactionId,
+          isSplit,
+          participants: isSplit ? participants : [],
+          numberOfUsers: isSplit ? numberOfUsers : 0,
         });
         if (response.error || response.data.error)
           throw new Error(
@@ -169,7 +183,7 @@ const AddTransactionForm = ({ accounts }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    // console.log(formData);
+    console.log(formData);
 
     addTransaction({
       formData,
@@ -197,6 +211,51 @@ const AddTransactionForm = ({ accounts }) => {
       : formData.expenseType;
 
     console.log(formData);
+  };
+
+  // fetch split users account :
+
+  const [splitAccount, setSplitAccount] = useState([]);
+
+  const { mutate: getSplitAccout, isPending: pendingSplitAccount } =
+    useMutation({
+      mutationFn: async (userId) => {
+        try {
+          console.log("fetching");
+          const response = await axios.post("/api/getSplitAccounts", {
+            userId,
+          });
+          console.log(response.data);
+          if (response.error)
+            throw new Error(
+              response.error.message ||
+                response.error ||
+                "Error in find Split Account"
+            );
+          return response.data;
+        } catch (error) {
+          console.log(error);
+          throw new Error(
+            error.message || error || "Error in find Split Account"
+          );
+        }
+      },
+      onSuccess: (data) => {
+        console.log(data);
+        setSplitAccount(data);
+      },
+    });
+
+  console.log("SPLIT ACCOUNT : ", splitAccount);
+
+  const handleFindUserAccount = ({ e, index }) => {
+    e.preventDefault();
+    console.log("button clicked");
+
+    const userId = formData?.participants[index]?.userId;
+    console.log(userId);
+
+    getSplitAccout(userId);
   };
 
   // console.log( accounts);
@@ -402,6 +461,136 @@ const AddTransactionForm = ({ accounts }) => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        )}
+
+        <div className="p-4 border rounded-xl flex items-center justify-between">
+          <div>
+            <p>Split Transaction</p>
+            <p className="text-sm text-muted-foreground">
+              Split this transaction between multiple accounts
+            </p>
+          </div>
+          <div>
+            <Switch
+              value={formData.isSplit}
+              onCheckedChange={(value) =>
+                setFormData((prev) => ({ ...prev, isSplit: value }))
+              }
+            />
+          </div>
+        </div>
+
+        {formData.isSplit && (
+          <div>
+            {/* Input to specify the number of users */}
+
+            <label htmlFor="numberOfUser" className="text-sm font-medium">
+              How many User
+            </label>
+
+            <Input
+              type="number"
+              id="numberOfUser"
+              placeholder="Split transaction among how many users?"
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  numberOfUsers: parseInt(e.target.value, 10) || 0, // Parse to integer
+                }))
+              }
+            />
+
+            {/* Dynamically render input fields based on the number of users */}
+            {Array.from({ length: formData?.numberOfUsers || 0 }).map(
+              (_, index) => (
+                <div key={index} className="space-y-2 mt-2">
+                  {/* Label for User */}
+                  <label
+                    className="text-sm font-medium"
+                    htmlFor={`userId-${index}`}
+                  >
+                    User {index + 1}
+                  </label>
+
+                  {/* User ID Input and Find Account Button */}
+                  <div className="flex gap-5">
+                    <Input
+                      id={`userId-${index}`}
+                      type="text"
+                      placeholder={`Id for User ${index + 1}`}
+                      value={formData.participants[index]?.userId || ""}
+                      className="flex-1"
+                      onChange={(e) => {
+                        setFormData((prev) => {
+                          const updatedParticipants = [...prev.participants];
+                          updatedParticipants[index] = {
+                            ...updatedParticipants[index],
+                            userId: e.target.value, // Update the userId for the current participant
+                          };
+                          return { ...prev, participants: updatedParticipants }; // Return updated state
+                        });
+                      }}
+                    />
+
+                    {/* Find User's Account Button */}
+                    {pendingSplitAccount ? (
+                      <Button
+                        className="flex-1"
+                        variant="secondary"
+                        disabled
+                        onClick={(e) => handleFindUserAccount({ e, index })}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="animate-spin" /> Loading
+                        </span>
+                      </Button>
+                    ) : (
+                      <Button
+                        className="flex-1"
+                        variant="secondary"
+                        onClick={(e) => handleFindUserAccount({ e, index })}
+                      >
+                        Find User's Account
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Account Selection Dropdown */}
+                  <Select
+                    className="w-full"
+                    value={formData.participants[index]?.accountId || ""}
+                    onValueChange={(value) => {
+                      setFormData((prev) => {
+                        const updatedParticipants = [...prev.participants];
+                        updatedParticipants[index] = {
+                          ...updatedParticipants[index],
+                          accountId: value, // Update the accountId for the current participant
+                        };
+                        return { ...prev, participants: updatedParticipants }; // Return updated state
+                      });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {splitAccount && splitAccount.length > 0 ? (
+                        splitAccount.map((data) => (
+                          <SelectItem value={data.id} key={data.id}>
+                            {data.name} ({data.id})
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="Enter user ID" disabled>
+                          Enter User's Id
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )
+            )}
           </div>
         )}
 

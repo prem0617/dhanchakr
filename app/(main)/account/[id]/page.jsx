@@ -1,5 +1,6 @@
 "use client";
 
+import AccountChart from "@/components/custom/AccountChart";
 import AddLimit from "@/components/custom/AddLimit";
 import Transactiontable from "@/components/custom/Transactiontable";
 import { Button } from "@/components/ui/button";
@@ -115,6 +116,9 @@ const Account = () => {
               accountData.type.slice(1).toLowerCase()}{" "}
             Account
           </p>
+          <p className="text-sm text-muted-foreground">
+            Account id : {accountData?.id}
+          </p>
         </div>
 
         <div className="pb-2 text-right">
@@ -131,13 +135,14 @@ const Account = () => {
 
       {/* Chart Section */}
 
+      {accountData.transactions && (
+        <AccountChart transactions={accountData.transactions} />
+      )}
+
       {/* Transaction Table */}
 
       {accountData.transactions && (
-        <Transactiontable
-          transactions={accountData.transactions}
-          // setDeleteIds={setDeleteIds}
-        />
+        <Transactiontable transactions={accountData.transactions} />
       )}
       <div className="flex justify-end w-full">
         {loadingCSV ? (

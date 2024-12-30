@@ -87,7 +87,7 @@ function Header() {
                   <span className="font-medium">Email :</span> {user?.email}
                 </div>
                 <div>
-                  <span className="font-medium">ID :</span> {user?.email}
+                  <span className="font-medium">ID :</span> {user?.id}
                 </div>
                 <Button
                   onClick={handleLogout}

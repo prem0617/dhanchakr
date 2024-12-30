@@ -20,6 +20,7 @@ model User {
   transactions Transaction[]
   accounts    Account[]
   budgets     Budget[]
+  splitDetails SplitDetails[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -38,6 +39,8 @@ model Transaction {
   nextRecurringDate DateTime?
   recurringInterval RecurringInterval?
   lastProcessed     DateTime?
+  isSplit      Boolean      @default(false)
+  splitDetails SplitDetails[] 
   status            TransactionStatus @default(COMPLETED)
   userId            String
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -101,4 +104,23 @@ model Budget {
 
   @@index([userId])
   @@map("budgets")
+}
+
+model SplitDetails {
+  id           String       @id @default(uuid())
+  transactionId String 
+  transaction  Transaction  @relation(fields: [transactionId], references: [id],onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId],references: [id])
+  splitType    SplitType
+  participants Json         // JSON array containing participant details
+
+  @@index([id])
+  @@map("splitDetails")
+
+}
+
+enum SplitType {
+  EQUAL
+  UNEQUAL
 }
