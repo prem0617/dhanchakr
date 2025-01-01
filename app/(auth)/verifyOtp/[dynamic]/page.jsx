@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 const OTPForm = () => {
   const [otp, setOtp] = useState("");
@@ -14,10 +15,10 @@ const OTPForm = () => {
   const { dynamic: token } = useParams();
   console.log(token);
 
-  const { mutate: verifyOtp, isLoading } = useMutation({
-    mutationFn: async function (otp) {
+  const { mutate: verifyOtp, isPending } = useMutation({
+    mutationFn: async function ({ otp, token }) {
       try {
-        const response = await axios.post("../../../api/auth/verifyOtp", {
+        const response = await axios.post("/api/auth/verifyOtp", {
           otp,
           token,
         });
@@ -38,8 +39,9 @@ const OTPForm = () => {
     },
   });
 
-  const handleSubmit = () => {
-    verifyOtp(otp);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    verifyOtp({ otp, token });
   };
 
   const handleOtpChange = (e) => {
@@ -71,7 +73,7 @@ const OTPForm = () => {
               required
             />
           </div>
-          {isLoading ? (
+          {isPending ? (
             <Button
               disabled
               className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"

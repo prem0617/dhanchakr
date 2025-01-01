@@ -19,7 +19,7 @@ function SignUp() {
   });
   const router = useRouter();
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (formData) => {
       try {
         const response = await axios.post("../../api/auth/signup", formData, {
@@ -102,7 +102,7 @@ function SignUp() {
             Already Have An Account?
             <Link href={"/login"}> Click here</Link>
           </p>
-          {isLoading ? (
+          {isPending ? (
             <Button
               disabled
               className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
