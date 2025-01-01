@@ -147,8 +147,8 @@ const Transactiontable = ({ transactions }) => {
         );
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accountData"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["accountData"] });
       toast.success("Transaction Deleted");
     },
   });
@@ -197,8 +197,8 @@ const Transactiontable = ({ transactions }) => {
         throw new Error(error.message || error || "Error in Bulk Delete");
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accountData"] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["accountData"] });
       toast.success("Transaction Deleted");
     },
   });

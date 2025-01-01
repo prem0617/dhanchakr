@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Switch } from "../ui/switch";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -21,16 +21,16 @@ const AccountCard = ({ data }) => {
   const { mutate: updateDefault, isPending } = useMutation({
     mutationFn: async (id) => {
       try {
-        console.log(id);
         const response = await axios.post("/api/chengeDefaultAccount", { id });
-        console.log(response);
+        console.log(response.data);
         if (response.error || response.data.error)
           throw new Error(
             response.error ||
               response.data.error ||
               "Error in changing default account"
           );
-        return response;
+
+        return response.data;
       } catch (error) {
         throw new Error(
           response.error ||
@@ -39,9 +39,11 @@ const AccountCard = ({ data }) => {
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: async (_, id) => {
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      await queryClient.invalidateQueries({ queryKey: ["budget", id] });
+
       toast.success("Default Account Updated");
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
     },
   });
 
@@ -55,18 +57,18 @@ const AccountCard = ({ data }) => {
 
           {!isPending ? (
             <Switch
-              checked={isDefault}
+              checked={data.isDefault}
               onClick={(e) => {
                 e.preventDefault();
                 if (isDefault) {
                   toast.error("One Account Must be Default");
                   return;
                 }
-                updateDefault(id);
+                updateDefault(data.id);
               }}
             />
           ) : (
-            <Switch disabled />
+            <Loader2 disabled className="animate-spin" />
           )}
         </CardHeader>
         <CardContent>

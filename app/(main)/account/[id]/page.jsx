@@ -9,7 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Account = () => {
   const { id } = useParams();
@@ -61,8 +61,13 @@ const Account = () => {
     getCSVFile(id);
   };
 
-  const { data: accountData, isLoading } = useQuery({
-    queryKey: ["accountData"],
+  const {
+    data: accountData,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["accountData", id],
     queryFn: async () => {
       try {
         const response = await axios.post(
@@ -85,6 +90,7 @@ const Account = () => {
         );
       }
     },
+    enabled: !!id,
   });
 
   if (!accountData && isLoading)

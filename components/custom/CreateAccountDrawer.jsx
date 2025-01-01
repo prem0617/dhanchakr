@@ -57,9 +57,9 @@ const CreateAccountDrawer = ({ children }) => {
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toast.success("Account Created");
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       setOpen((prev) => !prev);
     },
     onError: (error) => {

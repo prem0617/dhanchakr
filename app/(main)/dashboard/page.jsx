@@ -1,6 +1,7 @@
 "use client";
 
 import AccountCard from "@/components/custom/AccountCard";
+import BudgetProgress from "@/components/custom/BudgetProgress";
 import CreateAccountDrawer from "@/components/custom/CreateAccountDrawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,12 +15,62 @@ const Dashboard = () => {
 
   console.log(accounts);
 
+  let defaultAccount;
+
+  if (accounts) {
+    defaultAccount = accounts.find((account) => account.isDefault).id;
+  }
+
+  console.log("default : ", defaultAccount);
+
+  const { data: budget, isLoading: loadQuery } = useQuery({
+    queryKey: ["budget", defaultAccount],
+    queryFn: async () => {
+      try {
+        const response = await axios.post("/api/getCurrentBudget", {
+          accountId: defaultAccount,
+        });
+
+        console.log(response);
+        if (response.data.error)
+          throw new Error(
+            response.data.error.message ||
+              response.data.error ||
+              "Error in Get Current Budget"
+          );
+
+        return response.data;
+      } catch (error) {
+        throw new Error(
+          error.message || error || "Error in Get Current Budget"
+        );
+      }
+    },
+  });
+
+  console.log(budget);
+
+  if (!defaultAccount || !budget) {
+    return (
+      <div className="flex flex-col space-y-3">
+        <Skeleton className="h-[305px] w-full rounded-xl" />
+      </div>
+    );
+  }
+
   return (
     <div className="px-5">
-      Dashboard
       {/* Budget Progress */}
+      {defaultAccount && budget && (
+        <BudgetProgress
+          initicalAmount={budget?.budget}
+          currentExpense={budget?.currentExpense}
+        />
+      )}
+
       {/* Overview */}
       {/* Account Grid */}
+      <div className="mb-2 mt-4 pl-4 text-2xl font-semibold"> Account</div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <CreateAccountDrawer>
           <Card className="hover:shadow-md transition-all cursor-pointer border-dashed">
