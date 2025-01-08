@@ -38,7 +38,7 @@ const CreateAccountDrawer = ({ children }) => {
 
   const {
     mutate: createAccount,
-    isLoading,
+    isPending,
     isError,
   } = useMutation({
     mutationFn: async function (formData) {
@@ -147,7 +147,7 @@ const CreateAccountDrawer = ({ children }) => {
                   Cancle
                 </Button>
               </DrawerClose>
-              {isLoading ? (
+              {isPending ? (
                 <Button
                   disabled
                   className=" flex-1 bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
@@ -156,7 +156,10 @@ const CreateAccountDrawer = ({ children }) => {
                   Please wait
                 </Button>
               ) : (
-                <Button type="submit" className="flex-1">
+                <Button
+                  type="submit"
+                  className="flex-1 bg-blue-500 hover:bg-blue-600"
+                >
                   Create Account
                 </Button>
               )}

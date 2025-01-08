@@ -41,7 +41,9 @@ export async function POST(req) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    console.log(updatedDefault);
+
+    return NextResponse.json(updatedDefault.id);
   } catch (error) {
     console.log(error.message || error || "Error in Chege default Account");
     return NextResponse.json(

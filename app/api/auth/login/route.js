@@ -54,7 +54,7 @@ export async function POST(request) {
 
     return response;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return NextResponse.json(
       { error: "Internal Server Error In Login Route", success: false },
       { status: 500 }

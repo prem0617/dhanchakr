@@ -10,7 +10,7 @@ import {
 import { Button } from "../ui/button";
 
 import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, IndianRupee, Loader2 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -101,7 +101,9 @@ const AddTransactionForm = ({ accounts }) => {
         date: data.date ? new Date(data.date) : "", // Convert date safely
         description: data.description ?? "",
         isRecurring: !!data.isRecurring, // Ensure it's a boolean
-        recurringInterval: data.isRecurring ? data.recurringInterval ?? "" : "", // Handle conditionally
+        recurringInterval: data.isRecurring
+          ? (data.recurringInterval ?? "")
+          : "", // Handle conditionally
       });
       setDate(new Date(data.date));
     },
@@ -219,11 +221,11 @@ const AddTransactionForm = ({ accounts }) => {
 
   const { mutate: getSplitAccout, isPending: pendingSplitAccount } =
     useMutation({
-      mutationFn: async (userId) => {
+      mutationFn: async (email) => {
         try {
           console.log("fetching");
           const response = await axios.post("/api/getSplitAccounts", {
-            userId,
+            email,
           });
           console.log(response.data);
           if (response.error)
@@ -242,20 +244,25 @@ const AddTransactionForm = ({ accounts }) => {
       },
       onSuccess: (data) => {
         console.log(data);
-        setSplitAccount(data);
+        setSplitAccount(data.accounts);
       },
     });
 
   console.log("SPLIT ACCOUNT : ", splitAccount);
 
+  splitAccount &&
+    splitAccount?.map((account) => {
+      console?.log("ACCoUNT  : ", account);
+    });
+
   const handleFindUserAccount = ({ e, index }) => {
     e.preventDefault();
     console.log("button clicked");
 
-    const userId = formData?.participants[index]?.userId;
-    console.log(userId);
+    const email = formData?.participants[index]?.email;
+    console.log(email);
 
-    getSplitAccout(userId);
+    getSplitAccout(email);
   };
 
   // console.log( accounts);
@@ -518,17 +525,17 @@ const AddTransactionForm = ({ accounts }) => {
                     <Input
                       id={`userId-${index}`}
                       type="text"
-                      placeholder={`Id for User ${index + 1}`}
-                      value={formData.participants[index]?.userId || ""}
+                      placeholder={`Email of User ${index + 1}`}
+                      value={formData.participants[index]?.email || ""}
                       className="flex-1"
                       onChange={(e) => {
                         setFormData((prev) => {
                           const updatedParticipants = [...prev.participants];
                           updatedParticipants[index] = {
                             ...updatedParticipants[index],
-                            userId: e.target.value, // Update the userId for the current participant
+                            email: e.target.value,
                           };
-                          return { ...prev, participants: updatedParticipants }; // Return updated state
+                          return { ...prev, participants: updatedParticipants };
                         });
                       }}
                     />
@@ -578,7 +585,14 @@ const AddTransactionForm = ({ accounts }) => {
                       {splitAccount && splitAccount.length > 0 ? (
                         splitAccount.map((data) => (
                           <SelectItem value={data.id} key={data.id}>
-                            {data.name} ({data.id})
+                            {console.log("Account  :  ", data)}
+                            <div className="flex gap-20 md:w-auto">
+                              <div>{data.name} </div>{" "}
+                              <div className="flex">
+                                <IndianRupee className="h-4 w-4" />
+                                {data.balance}
+                              </div>
+                            </div>
                           </SelectItem>
                         ))
                       ) : (

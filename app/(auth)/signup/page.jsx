@@ -16,10 +16,14 @@ function SignUp() {
     password: "",
     name: "",
     username: "",
+    otp: "",
   });
+
+  const [token, setToken] = useState("");
+  const [isOtpSend, setIsOtpSend] = useState(false);
   const router = useRouter();
 
-  const { mutate, isPending } = useMutation({
+  const { mutate: signUp, isPending: signUpPending } = useMutation({
     mutationFn: async (formData) => {
       try {
         const response = await axios.post("../../api/auth/signup", formData, {
@@ -35,14 +39,50 @@ function SignUp() {
     },
     onSuccess: (data) => {
       console.log(data);
+      setToken(data.verificationToken);
+      setIsOtpSend(true);
       toast.success("Sign Up Success. Check your email to Verify your account");
-      router.push(`/verifyOtp/${data.verificationToken}`);
+      // router.push(`/verifyOtp/${data.verificationToken}`);
     },
   });
 
-  const handleSubmit = (e) => {
+  const sendOTP = (e) => {
     e.preventDefault();
-    mutate(formData);
+    signUp(formData);
+  };
+
+  console.log(token);
+  console.log(isOtpSend);
+
+  const { mutate: addUser, isPending: addUserPending } = useMutation({
+    mutationFn: async function ({ otp, token }) {
+      try {
+        const response = await axios.post("/api/auth/verifyOtp", {
+          otp,
+          token,
+        });
+
+        console.log(response);
+
+        if (response.error) {
+          throw new Error(response.error || "Error in OTP Verification");
+        }
+        return response;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    onSuccess: () => {
+      toast.success("Otp Verified");
+      router.push("/");
+    },
+  });
+
+  const handleVerifyOTP = (e) => {
+    e.preventDefault();
+    const otp = formData.otp;
+
+    addUser({ otp, token });
   };
 
   return (
@@ -52,7 +92,7 @@ function SignUp() {
         {/* Form Section */}
         <form
           action=""
-          onSubmit={handleSubmit}
+          onSubmit={handleVerifyOTP}
           className="flex flex-col gap-3 py-5 px-5 border-r-2 w-[300px]"
         >
           <h1 className="text-center font-bold text-blue-600 text-2xl py-3">
@@ -98,11 +138,25 @@ function SignUp() {
               }
             />
           </div>
+          {isOtpSend && (
+            <div>
+              <label htmlFor="password">OTP : </label>
+              <Input
+                id="otp"
+                placeholder="000000"
+                value={formData.otp}
+                className="py-2"
+                onChange={(e) =>
+                  setFormData({ ...formData, otp: e.target.value })
+                }
+              />
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">
             Already Have An Account?
             <Link href={"/login"}> Click here</Link>
           </p>
-          {isPending ? (
+          {signUpPending || addUserPending ? (
             <Button
               disabled
               className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
@@ -110,9 +164,16 @@ function SignUp() {
               <Loader2 className="animate-spin " />
               Please wait
             </Button>
-          ) : (
+          ) : isOtpSend ? (
             <Button className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2">
               Signup
+            </Button>
+          ) : (
+            <Button
+              className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
+              onClick={sendOTP}
+            >
+              Send OTP
             </Button>
           )}
         </form>

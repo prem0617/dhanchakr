@@ -8,14 +8,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
 
   const router = useRouter();
 
-  const { mutate, isLoading } = useMutation({
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
     mutationFn: async (formData) => {
       try {
         const response = await axios.post("../../api/auth/login", formData, {
@@ -30,6 +32,8 @@ function Login() {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+
       toast.success("Login successful");
       router.push(`/`);
     },
@@ -83,7 +87,7 @@ function Login() {
             Don't Have An Accout?
             <Link href={"/signup"}> Click here</Link>
           </p>
-          {isLoading ? (
+          {isPending ? (
             <Button
               disabled
               className="bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"

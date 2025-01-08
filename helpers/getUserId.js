@@ -7,6 +7,8 @@ export const getUserId = async (req) => {
     const tokenCookie = cookieStore.get("jwttoken"); // Access the cookie
     const token = tokenCookie?.value; // Safely retrieve the value
 
+    if (!token) throw new Error("User not found");
+
     const payload = jwt.verify(token, process.env.JWT_SECRET);
 
     // console.log(payload);

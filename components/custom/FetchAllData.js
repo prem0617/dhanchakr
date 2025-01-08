@@ -11,7 +11,7 @@ const FetchAllData = () => {
         const response = await axios.get("/api/auth/getMe", {
           withCredentials: true,
         });
-        console.log(response);
+        // console.log(response);
         if (response.data.error) {
           throw new Error(response.data.error);
         }
@@ -28,18 +28,16 @@ const FetchAllData = () => {
     queryKey: ["accounts"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/getAccounts");
-        console.log(response);
-        if (response.error || response.data.error)
-          throw new Error(
-            response.error || response.data.error || "Error in getAccout"
-          );
+        const response = await axios?.get("/api/getAccounts");
+        // console.log(response);
+
         return response.data.accounts;
       } catch (error) {
-        console.log(error);
-        throw new Error(
-          response.error || response.data.error || "Error in getAccout"
-        );
+        // console.log(error);
+        // throw new Error(
+        //   response.error || response.data.error || "Error in getAccout"
+        // );
+        return error;
       }
     },
   });

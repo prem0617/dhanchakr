@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "../ui/skeleton";
 import { Check, Loader2, PencilIcon, X } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -105,12 +104,12 @@ const BudgetProgress = ({ initicalAmount, currentExpense }) => {
             persenteage >= 90
               ? "bg-red-500"
               : persenteage >= 70
-              ? "bg-yellow-500"
-              : "bg-green-500"
+                ? "bg-yellow-500"
+                : "bg-green-500"
           }`}
         />
         <div className="flex justify-end text-sm text-muted-foreground my-2">
-          <span>{persenteage.toFixed(2)} % used</span>
+          <span>{persenteage?.toFixed(2)} % used</span>
         </div>
       </CardContent>
     </Card>

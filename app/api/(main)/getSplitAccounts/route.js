@@ -4,16 +4,24 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     // je user na account find karvna chhe ae user ni id chhe je user login chhe aeni nai
-    const { userId } = await req.json();
+    const { email } = await req.json();
 
-    console.log(userId);
+    console.log(email);
 
-    const accounts = await db.account.findMany({
+    const accounts = await db.user.findUnique({
       where: {
-        userId,
+        email,
+      },
+      select: {
+        accounts: true,
       },
     });
-    return NextResponse.json(accounts);
+
+    // accounts?.map((data) => console.log(data));
+
+    console.log(accounts.accounts);
+
+    return NextResponse.json({ accounts: accounts.accounts });
   } catch (error) {
     console.log(error.message || error || "Error in find Split Account");
     return NextResponse.json({

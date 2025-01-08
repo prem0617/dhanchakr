@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
@@ -54,11 +54,14 @@ const OTPForm = () => {
         <form
           action=""
           onSubmit={handleSubmit}
-          className="flex flex-col gap-8 justify-center  p-5 border-r-2 w-[300px]"
+          className="flex flex-col gap-4 justify-center  p-5 border-r-2 w-[300px]"
         >
           {" "}
           <h1 className="font-medium text-2xl text-center text-blue-600">
             Verify OTP
+          </h1>
+          <h1 className="font-medium text-center text-muted-foreground text-blue-600">
+            Email : Poojanpatel@gmail.com
           </h1>
           <div className="space-y-2">
             <label htmlFor="otp">OTP : </label>

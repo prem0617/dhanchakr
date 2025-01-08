@@ -8,15 +8,12 @@ export async function POST(req) {
 
     const userId = await getUserId(req);
 
-    console.log(userId);
-
     // check user login chhe k nai
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized: Unable to retrieve user ID." },
-        { status: 401 }
-      );
+      return NextResponse.json({
+        error: "Unauthorized: Unable to retrieve user ID.",
+      });
     }
 
     const account = await db.account.findUnique({

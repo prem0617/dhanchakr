@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { CircleUserIcon, LayoutDashboard, PenBox } from "lucide-react";
+import { CircleUserIcon, LayoutDashboard, Loader2, PenBox } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import axios from "axios";
 
 function Header() {
   const { data: authUser, isLoading } = useQuery({
-    queryKey: ["authUser"],
+    queryKey: ["authUser"], // Query to fetch authenticated user
   });
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
@@ -19,11 +19,12 @@ function Header() {
 
   useEffect(() => {
     if (authUser) {
+      console.log(authUser);
       setUser(authUser);
     }
   }, [authUser]);
 
-  const { mutate: logout } = useMutation({
+  const { mutate: logout, isPending } = useMutation({
     mutationFn: async () => {
       const response = await axios.get("/api/auth/logout");
       if (response.data.error) {
@@ -31,11 +32,8 @@ function Header() {
       }
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries("authUser");
-      queryClient.removeQueries("authUser");
-
-      queryClient.removeQueries({ queryKey: ["authUser"] });
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
       setUser(null); // Clear user state
       router.push("/login");
@@ -58,6 +56,7 @@ function Header() {
 
         {user && !isLoading ? (
           <div className="flex items-center space-x-4">
+            {/* Dashboard Button */}
             <Link href={"/dashboard"}>
               <Button variant="outline">
                 <LayoutDashboard size={18} />
@@ -65,6 +64,7 @@ function Header() {
               </Button>
             </Link>
 
+            {/* Add Transaction Button */}
             <Link href={"/transaction/create"}>
               <Button>
                 <PenBox size={18} />
@@ -72,6 +72,7 @@ function Header() {
               </Button>
             </Link>
 
+            {/* User Profile Popover */}
             <Popover>
               <PopoverTrigger>
                 <div className="flex justify-center items-center gap-2 border-2 rounded-md px-4 py-[6px] cursor-pointer">
@@ -89,13 +90,25 @@ function Header() {
                 <div>
                   <span className="font-medium">ID :</span> {user?.id}
                 </div>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  className="w-full border-red-500 border-2 text-red-500 hover:text-red-500"
-                >
-                  Logout
-                </Button>
+                {isPending ? (
+                  <Button
+                    onClick={handleLogout}
+                    disabled
+                    variant="outline"
+                    className="w-full border-red-500 border-2 text-red-500 hover:text-red-500"
+                  >
+                    <Loader2 className="animate-spin" />
+                    Loading
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="w-full border-red-500 border-2 text-red-500 hover:text-red-500"
+                  >
+                    Logout
+                  </Button>
+                )}
               </PopoverContent>
             </Popover>
           </div>

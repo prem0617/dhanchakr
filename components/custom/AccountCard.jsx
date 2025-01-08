@@ -7,13 +7,28 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Switch } from "../ui/switch";
-import { ArrowDownRight, ArrowUpRight, Loader2 } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CircleX,
+  Delete,
+  EllipsisVertical,
+  Loader2,
+  Menu,
+} from "lucide-react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const AccountCard = ({ data }) => {
+  console.log(data);
   const { name, balance, type, isDefault, id } = data;
 
   const queryClient = useQueryClient();
@@ -47,6 +62,38 @@ const AccountCard = ({ data }) => {
     },
   });
 
+  const { mutate: deleteAccount, isPending: deleteAccountPending } =
+    useMutation({
+      mutationFn: async (accountId) => {
+        try {
+          const response = await axios.post(
+            "/api/deleteAccount",
+            { accountId },
+            { withCredentials: true }
+          );
+          console.log(response);
+          if (response.data.error) {
+            throw new Error(response.data.error);
+          }
+          return response.data;
+        } catch (error) {
+          console.log(error.message);
+          throw new Error("Failed to delete account");
+        }
+      },
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+        toast.success("Account Deleted");
+      },
+    });
+
+  const handleDelete = ({ e, accountId }) => {
+    e.preventDefault();
+    console.log("Delete");
+    console.log(accountId);
+    deleteAccount(accountId);
+  };
+
   return (
     <Card className="shadow-md transition-all">
       <Link href={`account/${id}`}>
@@ -55,21 +102,30 @@ const AccountCard = ({ data }) => {
             {name}
           </CardTitle>
 
-          {!isPending ? (
-            <Switch
-              checked={data.isDefault}
-              onClick={(e) => {
-                e.preventDefault();
-                if (isDefault) {
-                  toast.error("One Account Must be Default");
-                  return;
-                }
-                updateDefault(data.id);
-              }}
-            />
-          ) : (
-            <Loader2 disabled className="animate-spin" />
-          )}
+          <div className="flex gap-3">
+            {!isPending ? (
+              <Switch
+                checked={data.isDefault}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (isDefault) {
+                    toast.error("One Account Must be Default");
+                    return;
+                  }
+                  updateDefault(data.id);
+                }}
+              />
+            ) : (
+              <Loader2 disabled className="animate-spin" />
+            )}
+            {deleteAccountPending ? (
+              <Loader2 disabled className="animate-spin" />
+            ) : (
+              <CircleX
+                onClick={(e) => handleDelete({ e, accountId: data.id })}
+              />
+            )}{" "}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
