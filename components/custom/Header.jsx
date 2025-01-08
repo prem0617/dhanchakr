@@ -19,7 +19,7 @@ function Header() {
 
   useEffect(() => {
     if (authUser) {
-      console.log(authUser);
+      // console.log(authUser);
       setUser(authUser);
     }
   }, [authUser]);

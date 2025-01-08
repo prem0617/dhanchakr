@@ -6,7 +6,7 @@ import Papa from "papaparse";
 export async function POST(req) {
   try {
     const { accountId } = await req.json();
-    console.log(accountId);
+    // console.log(accountId);
 
     const userId = await getUserId(req);
     if (!userId)
@@ -35,7 +35,7 @@ export async function POST(req) {
       },
     });
 
-    console.log(transactionData);
+    // console.log(transactionData);
 
     if (!transactionData || !transactionData.transactions.length) {
       return NextResponse.json({ error: "No transactions found." });
@@ -45,7 +45,7 @@ export async function POST(req) {
 
     const csvData = Papa.unparse(transactionData.transactions);
 
-    console.log("CSV DATA", csvData);
+    // console.log("CSV DATA", csvData);
 
     return new Response(csvData, {
       headers: {
@@ -56,7 +56,7 @@ export async function POST(req) {
 
     return NextResponse.json(transactionData);
   } catch (error) {
-    console.log(error.message || error || "Error in Make CSV File");
+    // console.log(error.message || error || "Error in Make CSV File");
     return NextResponse.json({
       error: error.message || error || "Error in Make CSV File",
     });

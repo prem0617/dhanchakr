@@ -30,7 +30,7 @@ function SignUp() {
           withCredentials: true,
         });
         if (response.data.error) throw new Error(response.data.error);
-        console.log(response.data.error);
+        // console.log(response.data.error);
         return response.data.updatedUser;
       } catch (error) {
         console.error(error);
@@ -38,7 +38,7 @@ function SignUp() {
       }
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       setToken(data.verificationToken);
       setIsOtpSend(true);
       toast.success("Sign Up Success. Check your email to Verify your account");
@@ -51,8 +51,8 @@ function SignUp() {
     signUp(formData);
   };
 
-  console.log(token);
-  console.log(isOtpSend);
+  // console.log(token);
+  // console.log(isOtpSend);
 
   const { mutate: addUser, isPending: addUserPending } = useMutation({
     mutationFn: async function ({ otp, token }) {
@@ -62,7 +62,7 @@ function SignUp() {
           token,
         });
 
-        console.log(response);
+        // console.log(response);
 
         if (response.error) {
           throw new Error(response.error || "Error in OTP Verification");

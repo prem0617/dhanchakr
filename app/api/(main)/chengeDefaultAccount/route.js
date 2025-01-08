@@ -6,11 +6,11 @@ export async function POST(req) {
   try {
     const { id: accountId } = await req.json();
 
-    console.log(accountId);
+    // console.log(accountId);
 
     const userId = await getUserId(req);
 
-    console.log(userId);
+    // console.log(userId);
 
     // check user login chhe k nai
 
@@ -41,11 +41,11 @@ export async function POST(req) {
       },
     });
 
-    console.log(updatedDefault);
+    // console.log(updatedDefault);
 
     return NextResponse.json(updatedDefault.id);
   } catch (error) {
-    console.log(error.message || error || "Error in Chege default Account");
+    // console.log(error.message || error || "Error in Chege default Account");
     return NextResponse.json(
       {
         error: error.message || error || "Error in Change default Account",

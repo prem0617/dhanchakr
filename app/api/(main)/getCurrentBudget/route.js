@@ -16,7 +16,7 @@ export async function POST(req) {
 
     const { accountId } = await req.json();
 
-    console.log("account id", accountId);
+    // console.log("account id", accountId);
 
     if (!accountId)
       return NextResponse.json(
@@ -61,14 +61,14 @@ export async function POST(req) {
       },
     });
 
-    console.log(amount);
+    // console.log(amount);
 
     return NextResponse.json({
       budget: budget.amount.toNumber() || null,
       currentExpense: amount._sum.amount ? amount._sum.amount.toNumber() : 0,
     });
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
     return NextResponse.json({
       error: error.message || error || "Error in Get Current Budget",
     });

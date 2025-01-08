@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const { transactionId } = await req.json();
-    console.log(transactionId);
+    // console.log(transactionId);
 
     const userId = await getUserId(req);
 
@@ -33,7 +33,7 @@ export async function POST(req) {
 
     return NextResponse.json({ transactionAcc });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return NextResponse.json(
       {
         error: error.message || "Error in Get Transaction",

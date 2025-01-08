@@ -35,7 +35,7 @@ export async function GET(req) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.log(error.message || error || "Error in Get me Route");
+    // console.log(error.message || error || "Error in Get me Route");
     return NextResponse.json(
       {
         error: error || error.message || "Error in getme Route",

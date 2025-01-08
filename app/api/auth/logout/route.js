@@ -9,7 +9,7 @@ export async function GET(req) {
 
     return response;
   } catch (error) {
-    console.log(error.message || error || "Error in Logout");
+    // console.log(error.message || error || "Error in Logout");
     return NextResponse.json({
       error: error.message || error || "Error in Logout",
     });

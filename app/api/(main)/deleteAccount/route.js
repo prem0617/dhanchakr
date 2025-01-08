@@ -24,12 +24,12 @@ export const POST = async (req) => {
       },
     });
 
-    console.log(deletedAccount);
+    // console.log(deletedAccount);
 
     return NextResponse.json({ deletedAccount });
   } catch (error) {
-    console.log(error);
-    console.log(error.message);
+    // console.log(error);
+    // console.log(error.message);
     return NextResponse.json({ error: error.message });
   }
 };

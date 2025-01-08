@@ -14,7 +14,7 @@ const BudgetProgress = ({ initicalAmount, currentExpense }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [amount, setAmount] = useState(initicalAmount);
 
-  console.log(amount);
+  // console.log(amount);
 
   const queryClient = useQueryClient();
 
@@ -22,14 +22,14 @@ const BudgetProgress = ({ initicalAmount, currentExpense }) => {
     mutationFn: async (amount) => {
       try {
         const response = await axios.post("/api/updateBudget", { amount });
-        console.log(response);
+        // console.log(response);
         if (response.data.error)
           throw new Error(
             response.error.message || response.error || "Error in Update Budget"
           );
         return response.data;
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.message || error || "Error in Update Budget");
       }
     },
@@ -44,7 +44,7 @@ const BudgetProgress = ({ initicalAmount, currentExpense }) => {
   });
 
   const handleBudgetChange = () => {
-    console.log("clicked");
+    // console.log("clicked");
     updateBudget(amount);
   };
 

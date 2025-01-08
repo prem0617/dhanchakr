@@ -72,12 +72,12 @@ const AddTransactionForm = ({ accounts }) => {
 
   let updateTransaction = false;
 
-  console.log(formData);
+  // console.log(formData);
 
   const { mutate } = useMutation({
     mutationFn: async ({ transactionId, updateTransaction }) => {
       try {
-        console.log({ transactionId, updateTransaction });
+        // console.log({ transactionId, updateTransaction });
         const response = await axios.post("/api/getTransactionData", {
           transactionId,
           updateTransaction,
@@ -88,7 +88,7 @@ const AddTransactionForm = ({ accounts }) => {
         }
         return response.data.transactionAcc;
       } catch (error) {
-        console.log(error.message || error || "Error in GetTransaction");
+        // console.log(error.message || error || "Error in GetTransaction");
         throw new Error(error.message || error || "Error in GetTransaction");
       }
     },
@@ -140,7 +140,7 @@ const AddTransactionForm = ({ accounts }) => {
       } = formData;
 
       try {
-        console.log("updateTransaction", updateTransaction);
+        // console.log("updateTransaction", updateTransaction);
 
         const response = await axios.post("/api/addTransaction", {
           amount,
@@ -161,7 +161,7 @@ const AddTransactionForm = ({ accounts }) => {
           throw new Error(
             response.data.error || response.error || "Error in add transaction"
           );
-        console.log(response);
+        // console.log(response);
         return response.data.transaction;
       } catch (error) {
         throw new Error(
@@ -172,7 +172,7 @@ const AddTransactionForm = ({ accounts }) => {
       }
     },
     onSuccess: async (data) => {
-      console.log(data);
+      // console.log(data);
       await queryClient.invalidateQueries("accounts");
       await queryClient.invalidateQueries("accountData");
       toast.success("Transaction Added");
@@ -185,7 +185,7 @@ const AddTransactionForm = ({ accounts }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
 
     addTransaction({
       formData,
@@ -200,7 +200,7 @@ const AddTransactionForm = ({ accounts }) => {
   };
 
   const handleScanData = (scanData) => {
-    console.log(scanData);
+    // console.log(scanData);
     formData.amount = scanData.amount;
     if (scanData.date) {
       setDate(new Date(scanData.date));
@@ -212,7 +212,7 @@ const AddTransactionForm = ({ accounts }) => {
       ? (formData.expenseType = scanData.expenseType)
       : formData.expenseType;
 
-    console.log(formData);
+    // console.log(formData);
   };
 
   // fetch split users account :
@@ -223,11 +223,11 @@ const AddTransactionForm = ({ accounts }) => {
     useMutation({
       mutationFn: async (email) => {
         try {
-          console.log("fetching");
+          // console.log("fetching");
           const response = await axios.post("/api/getSplitAccounts", {
             email,
           });
-          console.log(response.data);
+          // console.log(response.data);
           if (response.error)
             throw new Error(
               response.error.message ||
@@ -236,19 +236,19 @@ const AddTransactionForm = ({ accounts }) => {
             );
           return response.data;
         } catch (error) {
-          console.log(error);
+          // console.log(error);
           throw new Error(
             error.message || error || "Error in find Split Account"
           );
         }
       },
       onSuccess: (data) => {
-        console.log(data);
+        // console.log(data);
         setSplitAccount(data.accounts);
       },
     });
 
-  console.log("SPLIT ACCOUNT : ", splitAccount);
+  // console.log("SPLIT ACCOUNT : ", splitAccount);
 
   splitAccount &&
     splitAccount?.map((account) => {
@@ -257,15 +257,15 @@ const AddTransactionForm = ({ accounts }) => {
 
   const handleFindUserAccount = ({ e, index }) => {
     e.preventDefault();
-    console.log("button clicked");
+    // console.log("button clicked");
 
     const email = formData?.participants[index]?.email;
-    console.log(email);
+    // console.log(email);
 
     getSplitAccout(email);
   };
 
-  // console.log( accounts);
+  console.log(accounts);
   return (
     <div className="mt-5">
       <form action="" className="space-y-4" onSubmit={handleFormSubmit}>
@@ -585,7 +585,7 @@ const AddTransactionForm = ({ accounts }) => {
                       {splitAccount && splitAccount.length > 0 ? (
                         splitAccount.map((data) => (
                           <SelectItem value={data.id} key={data.id}>
-                            {console.log("Account  :  ", data)}
+                            {/* {console.log("Account  :  ", data)} */}
                             <div className="flex gap-20 md:w-auto">
                               <div>{data.name} </div>{" "}
                               <div className="flex">

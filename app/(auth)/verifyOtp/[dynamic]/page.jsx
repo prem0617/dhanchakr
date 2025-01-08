@@ -13,7 +13,7 @@ const OTPForm = () => {
   const router = useRouter();
 
   const { dynamic: token } = useParams();
-  console.log(token);
+  // console.log(token);
 
   const { mutate: verifyOtp, isPending } = useMutation({
     mutationFn: async function ({ otp, token }) {
@@ -23,7 +23,7 @@ const OTPForm = () => {
           token,
         });
 
-        console.log(response);
+        // console.log(response);
 
         if (response.error) {
           throw new Error(response.error || "Error in OTP Verification");

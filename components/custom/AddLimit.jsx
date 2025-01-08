@@ -3,10 +3,10 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
 const AddLimit = ({ accountData }) => {
-  console.log(accountData);
+  // console.log(accountData);
   const handleLimit = (e) => {
     e.preventDefault();
-    console.log("Limit Clicked");
+    // console.log("Limit Clicked");
   };
 
   if (accountData.limit)

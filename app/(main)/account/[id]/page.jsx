@@ -26,7 +26,7 @@ const Account = () => {
             responseType: "blob", // Ensures the response is treated as a file (binary data)
           }
         );
-        console.log(response);
+        // console.log(response);
         if (response.error)
           throw new Error(
             response.error || response.error.message || "Error in Make CSV file"
@@ -37,9 +37,9 @@ const Account = () => {
       }
     },
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
       const blob = new Blob([data], { type: "text/csv" });
-      console.log(blob);
+      // console.log(blob);
 
       const url = window.URL.createObjectURL(blob);
 
@@ -81,7 +81,7 @@ const Account = () => {
             response.error || response.data.error || "Error in getAccout"
           );
 
-        console.log(response);
+        // console.log(response);
 
         return response.data.account;
       } catch (error) {
@@ -104,7 +104,7 @@ const Account = () => {
       </div>
     );
 
-  console.log(accountData?.transactions);
+  // console.log(accountData?.transactions);
 
   // const [deleteIds, setDeleteIds] = useState([]);
 

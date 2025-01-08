@@ -6,7 +6,7 @@ export async function POST(request) {
   try {
     const { otp, token } = await request.json();
 
-    console.log({ token, otp });
+    // console.log({ token, otp });
 
     if (!otp || !token)
       return NextResponse.json(
@@ -18,7 +18,7 @@ export async function POST(request) {
       where: { verificationToken: token },
     });
 
-    console.log(findUser);
+    // console.log(findUser);
 
     if (!findUser)
       return NextResponse.json(

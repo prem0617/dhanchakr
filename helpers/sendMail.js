@@ -22,7 +22,7 @@ export async function sendOtpEmail({ email, otp, token }) {
 
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    console.log(email);
+    // console.log(email);
   } catch (error) {
     console.error("Error sending email: ", error);
   }

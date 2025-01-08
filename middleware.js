@@ -29,9 +29,9 @@ export async function middleware(request) {
       // token valid hoy and auth route use karvano try kare to "/" page par redirect kare
       if (isAuthRoute) {
         url.pathname = "/";
-        console.log(
-          "Redirecting to homepage because user is already authenticated."
-        );
+        // console.log(
+        //   "Redirecting to homepage because user is already authenticated."
+        // );
         return NextResponse.redirect(url);
       }
     } catch (err) {
@@ -46,7 +46,7 @@ export async function middleware(request) {
     // token na hoy and protected route use kare to login par redirect
     if (isProtectedRoute) {
       url.pathname = "/login";
-      console.log("Redirecting to login because user is not authenticated.");
+      // console.log("Redirecting to login because user is not authenticated.");
       return NextResponse.redirect(url);
     }
   }

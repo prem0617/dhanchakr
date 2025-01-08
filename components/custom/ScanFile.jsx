@@ -18,10 +18,10 @@ const ScanFile = ({ scanedData }) => {
           base64String,
           type,
         });
-        console.log(response);
+        // console.log(response);
         return response.data;
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     },
     onSuccess: (data) => {
@@ -32,7 +32,7 @@ const ScanFile = ({ scanedData }) => {
 
   const handleFileChange = async (file) => {
     setFile(file);
-    console.log(file);
+    // console.log(file);
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size must be less then 5 MB");
       return;

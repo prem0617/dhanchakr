@@ -88,7 +88,7 @@ export async function POST(req) {
       participants,
     } = await req.json();
 
-    console.log(participants);
+    // console.log(participants);
 
     if (!expenseType || !amount || !accountId || !category || !date) {
       return NextResponse.json(

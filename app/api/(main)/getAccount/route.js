@@ -40,7 +40,7 @@ export async function POST(req) {
 
     return NextResponse.json({ account, success: true });
   } catch (error) {
-    console.log(error.message || error || "Error in Get Account Route");
+    // console.log(error.message || error || "Error in Get Account Route");
     return NextResponse.json(
       {
         error: error.message || error || "Error in Get Account Route",

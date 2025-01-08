@@ -8,7 +8,7 @@ import React from "react";
 const Transaction = () => {
   const { data: accounts, isLoading } = useQuery({ queryKey: ["accounts"] });
 
-  console.log(accounts);
+  // console.log(accounts);
 
   return (
     <div className="max-w-80 sm:max-w-xl md:max-w-3xl mx-auto">

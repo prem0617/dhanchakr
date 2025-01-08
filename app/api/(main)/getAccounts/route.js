@@ -6,7 +6,7 @@ export async function GET(req) {
   try {
     const userId = await getUserId(req);
 
-    console.log(userId);
+    // console.log(userId);
 
     // check user login chhe k nai
 
@@ -35,7 +35,7 @@ export async function GET(req) {
 
     return NextResponse.json({ accounts, success: true });
   } catch (error) {
-    console.log(error.message || error || "Error in Get Account Route");
+    // console.log(error.message || error || "Error in Get Account Route");
     return NextResponse.json(
       {
         error: error.message || error || "Error in Get Account Route",

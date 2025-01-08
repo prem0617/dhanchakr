@@ -28,7 +28,7 @@ import {
 } from "../ui/dropdown-menu";
 
 const AccountCard = ({ data }) => {
-  console.log(data);
+  // console.log(data);
   const { name, balance, type, isDefault, id } = data;
 
   const queryClient = useQueryClient();
@@ -37,7 +37,7 @@ const AccountCard = ({ data }) => {
     mutationFn: async (id) => {
       try {
         const response = await axios.post("/api/chengeDefaultAccount", { id });
-        console.log(response.data);
+        // console.log(response.data);
         if (response.error || response.data.error)
           throw new Error(
             response.error ||
@@ -71,13 +71,13 @@ const AccountCard = ({ data }) => {
             { accountId },
             { withCredentials: true }
           );
-          console.log(response);
+          // console.log(response);
           if (response.data.error) {
             throw new Error(response.data.error);
           }
           return response.data;
         } catch (error) {
-          console.log(error.message);
+          // console.log(error.message);
           throw new Error("Failed to delete account");
         }
       },
@@ -89,8 +89,8 @@ const AccountCard = ({ data }) => {
 
   const handleDelete = ({ e, accountId }) => {
     e.preventDefault();
-    console.log("Delete");
-    console.log(accountId);
+    // console.log("Delete");
+    // console.log(accountId);
     deleteAccount(accountId);
   };
 

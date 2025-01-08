@@ -102,7 +102,7 @@ const Transactiontable = ({ transactions }) => {
     result.sort((a, b) => {
       let comparision = 0;
 
-      console.log(sortConfig.field);
+      // console.log(sortConfig.field);
 
       switch (sortConfig.field) {
         case "date":
@@ -118,7 +118,7 @@ const Transactiontable = ({ transactions }) => {
           comparision = 0;
       }
 
-      console.log(comparision);
+      // console.log(comparision);
 
       return sortConfig.direction === "asc" ? comparision : -comparision;
     });
@@ -154,7 +154,7 @@ const Transactiontable = ({ transactions }) => {
   });
 
   const handleDelete = (transactionId) => {
-    console.log(transactionId);
+    // console.log(transactionId);
     deleteTransaction(transactionId);
   };
 
@@ -189,11 +189,11 @@ const Transactiontable = ({ transactions }) => {
         const response = await axios.post("/api/deleteBulkTransaction", {
           ids: checkedIds,
         });
-        console.log(response);
+        // console.log(response);
         if (response.error)
           throw new Error(response.error || "Error in Bulk Delete");
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw new Error(error.message || error || "Error in Bulk Delete");
       }
     },
@@ -204,7 +204,7 @@ const Transactiontable = ({ transactions }) => {
   });
 
   const handleBulkDelete = () => {
-    console.log("Bulk Delete");
+    // console.log("Bulk Delete");
     bulkDelete(checkedIds);
   };
 
