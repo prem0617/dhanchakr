@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "email": "email dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -40,9 +40,9 @@
     "next": "15.1.2",
     "nodemailer": "^6.9.16",
     "papaparse": "^5.4.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^18.2.0",
     "react-day-picker": "^9.5.0",
+    "react-dom": "^18.2.0",
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.4.1",
     "react-query": "^3.39.3",
@@ -57,11 +57,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@typescript-eslint/parser": "^8.19.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.2",
     "postcss": "^8",
     "prisma": "^6.1.0",
     "react-email": "3.0.4",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.7.2"
   }
 }
