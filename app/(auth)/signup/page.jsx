@@ -33,8 +33,9 @@ function SignUp() {
         // console.log(response.data.error);
         return response.data.updatedUser;
       } catch (error) {
-        console.error(error);
-        throw new Error("Failed to sign up");
+        const errorSend = error.response.data.error;
+
+        throw new Error(errorSend);
       }
     },
     onSuccess: (data) => {
@@ -43,6 +44,10 @@ function SignUp() {
       setIsOtpSend(true);
       toast.success("Sign Up Success. Check your email to Verify your account");
       // router.push(`/verifyOtp/${data.verificationToken}`);
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error(error.message);
     },
   });
 
@@ -179,10 +184,12 @@ function SignUp() {
         </form>
 
         {/* Image Section */}
-        <div className="w-[300px] h-[400px] sm:block hidden">
+        <div
+          className={`w-[300px] ${isOtpSend ? "h-[460px]" : "h-[400px]"} sm:block hidden`}
+        >
           <img
             src="https://img.freepik.com/free-vector/finance-financial-performance-concept-illustration_53876-40450.jpg"
-            alt="WASTE IMAGE"
+            alt="FINANCE IMAGE"
             className="w-full h-full object-cover rounded-r-md"
           />
         </div>

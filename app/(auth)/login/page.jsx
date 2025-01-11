@@ -17,25 +17,29 @@ function Login() {
 
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation({
     mutationFn: async (formData) => {
       try {
         const response = await axios.post("../../api/auth/login", formData, {
           withCredentials: true,
         });
         if (response.data.error) throw new Error(response.data.error);
-        // console.log(response.data.error);
         return response.data.newUser;
       } catch (error) {
-        console.error(error);
-        throw new Error("Failed to sign up");
+        throw error; // Pass the Axios error to onError handler
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
-
       toast.success("Login successful");
       router.push(`/`);
+    },
+    onError: (error) => {
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "An unexpected error occurred";
+      toast.error(errorMessage);
     },
   });
 

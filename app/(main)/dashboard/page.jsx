@@ -11,52 +11,67 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 
 const Dashboard = () => {
-  // Fetch accounts
-
-  const [accounts, setAccount] = useState([]);
-  const [accountsLoading, setaccountsLoading] = useState(true);
-
-  // const {
-  //   data: accounts,
-  //   isLoading: accountsLoading,
-  //   isFetching: accountsFetching,
-  // } = useQuery({
-  //   queryKey: ["accounts"],
-  //   queryFn: async () => {},
-  // });
-
-  let defaultAccount;
-  useEffect(() => {
-    const fetchIt = async () => {
-      const response = await axios.get("/api/getAccounts");
-      console.log(response.data.accounts);
-      setAccount(response?.data?.accounts);
-      setaccountsLoading(false);
-
-      if (accounts && accounts.length) {
-        defaultAccount = accounts.find((account) => account.isDefault)?.id;
+  const {
+    data: accounts,
+    isLoading: accountsLoading,
+    isFetching: accountsFetching,
+    error: accountsError,
+    refetch: fetchAccounts,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async () => {
+      try {
+        const response = await axios.get("/api/getAccounts");
+        console.log(response);
+        if (response.error) throw new Error(response.error);
+        return response.data.accounts;
+      } catch (error) {
+        console.log(error);
+        throw new Error(error);
       }
-    };
+    },
+  });
 
-    fetchIt();
-  }, []);
+  const [defaultAccount, setDefaultAccount] = useState(null);
 
   // Fetch budget for default account
-  const { data: budget, isLoading: budgetLoading } = useQuery({
+  const {
+    data: budget,
+    isLoading: budgetLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["budget", defaultAccount],
     queryFn: async () => {
-      if (!defaultAccount) return null;
+      console.log(defaultAccount, "DEFULT");
+      // if (!defaultAccount) return null; // Skip fetch if no default account
       const response = await axios.post("/api/getCurrentBudget", {
         accountId: defaultAccount,
       });
       if (response.data.error) throw new Error(response.data.error.message);
       return response.data;
     },
-    enabled: !!defaultAccount, // Only run this query if there is a default account
   });
 
+  if (accounts && accounts.length) {
+    const account = accounts.find((account) => account.isDefault)?.id;
+    console.log(account, "ACCOUNT");
+    if (account !== defaultAccount) {
+      setDefaultAccount(account);
+    }
+  }
+
+  useEffect(() => {
+    fetchAccounts();
+    refetch();
+  }, []);
+
+  console.log({ defaultAccount });
+
+  // console.log(accounts?.accounts);
+
   // If accounts are still loading or fetching, show loading skeletons
-  if (accountsLoading) {
+  if (accountsLoading || isRefetching) {
     return (
       <div className="px-5">
         <div className="flex flex-col space-y-3">
@@ -70,30 +85,22 @@ const Dashboard = () => {
   return (
     <div className="px-5">
       {/* Budget Progress */}
-      {defaultAccount ? (
-        budgetLoading ? (
-          <div className="flex flex-col space-y-3">
-            <Skeleton className="h-[185px] w-full rounded-xl" />
-          </div>
-        ) : budget ? (
-          <BudgetProgress
-            initicalAmount={budget.budget}
-            currentExpense={budget.currentExpense}
-            budgetSet={true}
-          />
-        ) : (
-          <BudgetProgress
-            initicalAmount={0}
-            currentExpense={0}
-            budgetSet={false}
-          />
-        )
+      {budgetLoading ? (
+        <div className="flex flex-col space-y-3">
+          <Skeleton className="h-[185px] w-full rounded-xl" />
+        </div>
+      ) : budget ? (
+        <BudgetProgress
+          initicalAmount={budget.budget}
+          currentExpense={budget.currentExpense}
+          budgetSet={true}
+        />
       ) : (
-        <Card>
-          <CardContent>
-            <p>Make one account as Default</p>
-          </CardContent>
-        </Card>
+        <BudgetProgress
+          initicalAmount={0}
+          currentExpense={0}
+          budgetSet={false}
+        />
       )}
 
       {/* Overview */}
@@ -110,18 +117,14 @@ const Dashboard = () => {
         </CreateAccountDrawer>
 
         {/* Account List */}
-        {accounts.length > 0 ? (
+        {accounts?.length > 0 ? (
           accounts.map((data, index) => (
             <div key={index}>
               <AccountCard data={data} />
-              {console.log({ length: accounts?.length, type: typeof accounts })}
             </div>
           ))
         ) : (
-          <p>
-            No accounts found. Please create one.
-            {console.log({ length: accounts?.length, type: typeof accounts })}
-          </p>
+          <p>No accounts found. Please create one.</p>
         )}
       </div>
     </div>

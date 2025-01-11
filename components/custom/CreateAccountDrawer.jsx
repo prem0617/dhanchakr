@@ -69,7 +69,7 @@ const CreateAccountDrawer = ({ children }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createAccount(formData); // Make sure formData is correct and valid
+    createAccount(formData);
   };
 
   return (

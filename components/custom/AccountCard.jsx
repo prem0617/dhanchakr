@@ -20,12 +20,6 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 
 const AccountCard = ({ data }) => {
   // console.log(data);
@@ -64,7 +58,7 @@ const AccountCard = ({ data }) => {
             : { ...acc, isDefault: false }
         );
       });
-      await queryClient.invalidateQueries({ queryKey: ["budget", id] });
+      await queryClient.invalidateQueries({ queryKey: ["budget"] });
 
       toast.success("Default Account Updated");
     },

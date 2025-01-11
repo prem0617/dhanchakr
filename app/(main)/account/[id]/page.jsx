@@ -137,7 +137,7 @@ const Account = () => {
         </div>
       </div>
 
-      <AddLimit accountData={accountData} />
+      {/* <AddLimit accountData={accountData} /> */}
 
       {/* Chart Section */}
 
