@@ -8,8 +8,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const BudgetProgress = ({ initicalAmount, currentExpense }) => {
+const BudgetProgress = ({ initicalAmount, currentExpense, budgetSet }) => {
   const persenteage = initicalAmount && (currentExpense / initicalAmount) * 100;
+
+  const [isBudgetSet, setIsBudgetSet] = useState(budgetSet);
 
   const [isEdit, setIsEdit] = useState(false);
   const [amount, setAmount] = useState(initicalAmount);
@@ -53,65 +55,79 @@ const BudgetProgress = ({ initicalAmount, currentExpense }) => {
       <CardHeader>
         <CardTitle>Monthly Budget (Defalut Account)</CardTitle>
       </CardHeader>
-      <CardContent>
-        {isEdit ? (
-          <div className="flex gap-2">
-            <Input
-              className="w-[200px] h-[28px]"
-              placeholder={amount}
-              //   value={amount}
-              type="number"
-              onChange={(e) => setAmount(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              className="h-[28px]"
-              onClick={() => setIsEdit((prev) => !prev)}
-            >
-              <X className="text-red-500 w-6 h-6" />
-            </Button>
-            {isPending ? (
+      {isBudgetSet ? (
+        <CardContent>
+          {isEdit ? (
+            <div className="flex gap-2">
+              <Input
+                className="w-[200px] h-[28px]"
+                placeholder={amount}
+                //   value={amount}
+                type="number"
+                onChange={(e) => setAmount(e.target.value)}
+              />
               <Button
                 variant="outline"
                 className="h-[28px]"
-                onClick={handleBudgetChange}
+                onClick={() => setIsEdit((prev) => !prev)}
               >
-                <Loader2 className="animate-spin w-6 h-6" />
+                <X className="text-red-500 w-6 h-6" />
               </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="h-[28px]"
-                onClick={handleBudgetChange}
-              >
-                <Check className="text-green-500 w-6 h-6" />
-              </Button>
-            )}
+              {isPending ? (
+                <Button
+                  variant="outline"
+                  className="h-[28px]"
+                  onClick={handleBudgetChange}
+                >
+                  <Loader2 className="animate-spin w-6 h-6" />
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="h-[28px]"
+                  onClick={handleBudgetChange}
+                >
+                  <Check className="text-green-500 w-6 h-6" />
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground my-2 flex items-center gap-2">
+              {currentExpense} of {initicalAmount} Spent{" "}
+              <PencilIcon
+                className="w-4 h-4 cursor-pointer"
+                onClick={() => setIsEdit((prev) => !prev)}
+              />
+            </div>
+          )}
+          <Progress
+            value={persenteage}
+            className=" my-4"
+            extraStyles={`${
+              persenteage >= 90
+                ? "bg-red-500"
+                : persenteage >= 70
+                  ? "bg-yellow-500"
+                  : "bg-green-500"
+            }`}
+          />
+          <div className="flex justify-end text-sm text-muted-foreground my-2">
+            <span>{persenteage?.toFixed(2)} % used</span>
           </div>
-        ) : (
-          <div className="text-sm text-muted-foreground my-2 flex items-center gap-2">
-            {currentExpense} of {initicalAmount} Spent{" "}
-            <PencilIcon
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => setIsEdit((prev) => !prev)}
-            />
+        </CardContent>
+      ) : (
+        <CardContent className="space-y-3">
+          <div className="text-xl text-muted-foreground">
+            Your budget is Notset :{" "}
           </div>
-        )}
-        <Progress
-          value={persenteage}
-          className=" my-4"
-          extraStyles={`${
-            persenteage >= 90
-              ? "bg-red-500"
-              : persenteage >= 70
-                ? "bg-yellow-500"
-                : "bg-green-500"
-          }`}
-        />
-        <div className="flex justify-end text-sm text-muted-foreground my-2">
-          <span>{persenteage?.toFixed(2)} % used</span>
-        </div>
-      </CardContent>
+          <Button
+            className="bg-blue-500 hover:bg-blue-600"
+            onClick={() => setIsBudgetSet(true)}
+          >
+            Set Budget
+          </Button>
+        </CardContent>
+      )}
     </Card>
   );
 };

@@ -55,7 +55,15 @@ const AccountCard = ({ data }) => {
       }
     },
     onSuccess: async (_, id) => {
-      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      // await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.setQueryData(["accounts"], (oldData) => {
+        if (!oldData) return [];
+        return oldData.map((acc) =>
+          acc.id === id
+            ? { ...acc, isDefault: true }
+            : { ...acc, isDefault: false }
+        );
+      });
       await queryClient.invalidateQueries({ queryKey: ["budget", id] });
 
       toast.success("Default Account Updated");
@@ -81,16 +89,20 @@ const AccountCard = ({ data }) => {
           throw new Error("Failed to delete account");
         }
       },
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      onSuccess: async (_data, accountId) => {
+        // await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+
+        queryClient.setQueryData(["accounts"], (oldData) => {
+          if (!oldData) return [];
+          return oldData.filter((acc) => acc.id !== accountId);
+        });
+
         toast.success("Account Deleted");
       },
     });
 
   const handleDelete = ({ e, accountId }) => {
     e.preventDefault();
-    // console.log("Delete");
-    // console.log(accountId);
     deleteAccount(accountId);
   };
 

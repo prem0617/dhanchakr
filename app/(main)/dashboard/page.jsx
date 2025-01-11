@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import AccountCard from "@/components/custom/AccountCard";
@@ -12,19 +12,34 @@ import { Plus } from "lucide-react";
 
 const Dashboard = () => {
   // Fetch accounts
-  const {
-    data: accounts = [],
-    isLoading: accountsLoading,
-    isFetching: accountsFetching,
-  } = useQuery({
-    queryKey: ["accounts"],
-    queryFn: async () => {
-      const response = await axios.get("/api/getAccounts");
-      return response.data;
-    },
-  });
 
-  const defaultAccount = accounts.find((account) => account.isDefault)?.id;
+  const [accounts, setAccount] = useState([]);
+  const [accountsLoading, setaccountsLoading] = useState(true);
+
+  // const {
+  //   data: accounts,
+  //   isLoading: accountsLoading,
+  //   isFetching: accountsFetching,
+  // } = useQuery({
+  //   queryKey: ["accounts"],
+  //   queryFn: async () => {},
+  // });
+
+  let defaultAccount;
+  useEffect(() => {
+    const fetchIt = async () => {
+      const response = await axios.get("/api/getAccounts");
+      console.log(response.data.accounts);
+      setAccount(response?.data?.accounts);
+      setaccountsLoading(false);
+
+      if (accounts && accounts.length) {
+        defaultAccount = accounts.find((account) => account.isDefault)?.id;
+      }
+    };
+
+    fetchIt();
+  }, []);
 
   // Fetch budget for default account
   const { data: budget, isLoading: budgetLoading } = useQuery({
@@ -37,11 +52,11 @@ const Dashboard = () => {
       if (response.data.error) throw new Error(response.data.error.message);
       return response.data;
     },
-    enabled: !!defaultAccount,
+    enabled: !!defaultAccount, // Only run this query if there is a default account
   });
 
-  // Show loading skeleton while accounts are being fetched
-  if (accountsLoading || accountsFetching) {
+  // If accounts are still loading or fetching, show loading skeletons
+  if (accountsLoading) {
     return (
       <div className="px-5">
         <div className="flex flex-col space-y-3">
@@ -64,13 +79,14 @@ const Dashboard = () => {
           <BudgetProgress
             initicalAmount={budget.budget}
             currentExpense={budget.currentExpense}
+            budgetSet={true}
           />
         ) : (
-          <Card>
-            <CardContent>
-              <p>No budget found for the selected account.</p>
-            </CardContent>
-          </Card>
+          <BudgetProgress
+            initicalAmount={0}
+            currentExpense={0}
+            budgetSet={false}
+          />
         )
       ) : (
         <Card>
@@ -95,9 +111,17 @@ const Dashboard = () => {
 
         {/* Account List */}
         {accounts.length > 0 ? (
-          accounts.map((data, index) => <AccountCard key={index} data={data} />)
+          accounts.map((data, index) => (
+            <div key={index}>
+              <AccountCard data={data} />
+              {console.log({ length: accounts?.length, type: typeof accounts })}
+            </div>
+          ))
         ) : (
-          <p>No accounts found. Please create one.</p>
+          <p>
+            No accounts found. Please create one.
+            {console.log({ length: accounts?.length, type: typeof accounts })}
+          </p>
         )}
       </div>
     </div>
