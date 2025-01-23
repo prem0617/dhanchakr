@@ -34,8 +34,6 @@ export default function RootLayout({ children }) {
           <main className="min-h-screen">{children}</main>
         </ReactQueryWrapper>
 
-        {/* Footer */}
-        <Footer />
         <Toaster />
       </body>
     </html>
