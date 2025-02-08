@@ -4,6 +4,9 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+
+  background: linear-gradient(to right, #f0f4ff, #e0e7ff);
+  color: hsl(var(--foreground));
 }
 
 @layer base {
@@ -93,4 +96,48 @@ body {
 
 .hero-image.scrolled {
   transform: rotateX(0deg) scale(1) translateY(40px);
+}
+
+:root {
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.gradient-title {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 font-extrabold;
+}
+
+.section-title {
+  @apply text-4xl font-bold text-center mb-4 gradient-title;
+}
+
+.section-description {
+  @apply text-gray-600 text-center mb-16 max-w-2xl mx-auto;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

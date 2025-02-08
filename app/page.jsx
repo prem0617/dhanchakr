@@ -1,6 +1,5 @@
 "use client";
 
-import HeroSection from "@/components/custom/Hero";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   featuresData,
@@ -8,10 +7,12 @@ import {
   statsData,
   testimonialsData,
 } from "@/data/landing";
-import axios from "axios";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { motion } from "framer-motion";
+
+import { ParallaxProvider } from "react-scroll-parallax";
+import HeroSection from "@/components/custom/Hero";
 
 export default function Home() {
   const { data: authUser, isLoading } = useQuery({
@@ -19,94 +20,151 @@ export default function Home() {
   });
 
   return (
-    <div className="pt-40">
-      <HeroSection />
-
-      {/* Stats */}
-      <section className="py-20 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {statsData.map((data, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-blue-600 mb-2">
-                  {data.value}
-                </div>
-                <div className="text-gray-600">{data.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Cards */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Everything you need to manage your finances
-          </h2>
-          <div className="grid gco1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuresData.map((data, index) => (
-              <Card key={index} className="p-6">
-                <CardContent className="space-y-4 pt-4 ">
-                  {data.icon}
-                  <p className="text-xl font-semibold">{data.title}</p>
-                  <p className="text-gray-600">{data.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-20 bg-blue-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16">
-            How it work's{" "}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {howItWorksData.map((data, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  {data.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-4">{data.title}</h3>
-                <p className="text-gray-600">{data.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What Our Users Say */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            What Our Users Say
-          </h2>
-          <div className="grid gco1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonialsData.map((data, index) => (
-              <Card key={index} className="p-6">
-                <CardContent className="pt-4 ">
-                  <div className="flex items-center mb-4 gap-4 ">
-                    <Image
-                      src={data.image}
-                      alt={data.name}
-                      width={40}
-                      height={40}
-                    />
-                    <div>
-                      <div className="font-semibold">{data.name}</div>
-                      <div className="text-sm text-gray-600">{data.role}</div>
+    <ParallaxProvider>
+      <div className="pt-40">
+        {/* Hero Section */}
+        <HeroSection />
+        {/* Stats Section */}
+        <section className="py-24 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {statsData.map((data, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="text-center transform hover:scale-105 transition-transform duration-300"
+                >
+                  <div className="bg-white rounded-2xl p-8 shadow-lg card-hover">
+                    <div className="text-4xl font-bold gradient-title mb-3">
+                      {data.value}
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      {data.label}
                     </div>
                   </div>
-                  <p className="text-gray-600">{data.quote}</p>
-                </CardContent>
-              </Card>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-24">
+          <div className="container mx-auto px-4">
+            <h2 className="section-title">
+              Everything you need to manage your finances
+            </h2>
+            <p className="section-description">
+              Powerful tools and features designed to give you complete control
+              over your financial journey
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuresData.map((data, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <Card className="group card-hover border-0 bg-gradient-to-br from-white to-gray-50">
+                    <CardContent className="space-y-4 p-8">
+                      <div className="text-blue-600 transform group-hover:scale-110 transition-transform duration-300">
+                        {data.icon}
+                      </div>
+                      <p className="text-xl font-semibold gradient-title">
+                        {data.title}
+                      </p>
+                      <p className="text-gray-600 leading-relaxed">
+                        {data.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="py-24 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="container mx-auto px-4">
+            <h2 className="section-title">How it works</h2>
+            <p className="section-description">
+              Get started with DhanChakr in three simple steps
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {howItWorksData.map((data, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.2, duration: 0.6 }}
+                  className="text-center group"
+                >
+                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 transition-all duration-300 border border-blue-100">
+                    <div className="text-blue-600">{data.icon}</div>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 gradient-title">
+                    {data.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {data.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-24">
+          <div className="container mx-auto px-4">
+            <h2 className="section-title">What Our Users Say</h2>
+            <p className="section-description">
+              Trusted by thousands of users worldwide
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {testimonialsData.map((data, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <Card className="group card-hover border-0 bg-gradient-to-br from-white to-gray-50">
+                    <CardContent className="p-8">
+                      <div className="flex items-center mb-6 gap-4">
+                        <div className="rounded-full overflow-hidden transform group-hover:scale-110 transition-transform duration-300">
+                          <Image
+                            src={data.image || "/placeholder.svg"}
+                            alt={data.name}
+                            width={48}
+                            height={48}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900">
+                            {data.name}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {data.role}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 leading-relaxed italic">
+                        "{data.quote}"
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </ParallaxProvider>
   );
 }

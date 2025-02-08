@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current route
 
   // Define routes where the Header should not be displayed
-  const hideHeaderRoutes = ["/login", "/signup"];
+  const hideHeaderRoutes = ["/login", "/signup", "/forgotPassword"];
   const showHeader = !hideHeaderRoutes.includes(pathname); // Check if the current route is not in the list
 
   return (
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
 
           <main className="min-h-screen">{children}</main>
         </ReactQueryWrapper>
-
+        {showHeader && <Footer />}
         <Toaster />
       </body>
     </html>

@@ -23,6 +23,7 @@ model User {
   splitDetails SplitDetails[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime @updatedAt
+  forgotPasswordOtp String?
 
   @@map("users")
 }

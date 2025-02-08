@@ -82,7 +82,7 @@ export async function POST(request) {
 
     let otpString = otp.toString();
 
-    await sendOtpEmail({ email, otp: otpString, token });
+    await sendOtpEmail({ email, otp: otpString, token, type: "verifyUser" });
 
     return NextResponse.json({ updatedUser, success: true }, { status: 201 });
   } catch (error) {

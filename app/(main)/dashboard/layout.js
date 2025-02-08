@@ -4,7 +4,7 @@ import Dashboard from "./page";
 const DashboardLayout = () => {
   return (
     <div className="px-5">
-      <h1 className="text-6xl font-bold gradient-title mb-5">Dashboard</h1>
+      <h1 className="text-6xl font-bold gradient-title">Dashboard</h1>
 
       <Dashboard />
     </div>

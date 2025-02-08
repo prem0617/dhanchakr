@@ -4,18 +4,18 @@ import { db } from "@/lib/primsa";
 
 export async function POST(request) {
   try {
-    const { otp, token } = await request.json();
+    const { otp, email } = await request.json();
 
     // console.log({ token, otp });
 
-    if (!otp || !token)
+    if (!otp || !email)
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
 
     const findUser = await db.user.findUnique({
-      where: { verificationToken: token },
+      where: { email: email },
     });
 
     console.log(findUser);
@@ -26,27 +26,14 @@ export async function POST(request) {
         { status: 404 }
       );
 
-    const payload = {
-      id: findUser.id, // Ensure this is 'id' instead of '_id'
-      email: findUser.email,
-    };
+    console.log({ otp, forgotPasswordOtp: findUser.forgotPasswordOtp });
 
-    console.log("first");
-
-    if (otp !== findUser.otp)
+    if (otp !== findUser.forgotPasswordOtp)
       return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
-
-    const updatedUser = await db.user.update({
-      where: { verificationToken: token },
-      data: {
-        isVerified: true,
-        verificationToken: null,
-      },
-    });
 
     // console.log(updatedUser);
 
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
         message: "Otp verified successfully",
         success: true,
@@ -54,18 +41,18 @@ export async function POST(request) {
       { status: 200 }
     );
 
-    // Sign JWT token with the user data and an expiration
-    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    // // Sign JWT token with the user data and an expiration
+    // const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, {
+    //   expiresIn: "1h",
+    // });
 
-    // Set the JWT token as an HttpOnly cookie for security
-    response.cookies.set("jwttoken", jwtToken, {
-      httpOnly: true,
-      maxAge: 3600,
-    });
+    // // Set the JWT token as an HttpOnly cookie for security
+    // response.cookies.set("jwttoken", jwtToken, {
+    //   httpOnly: true,
+    //   maxAge: 3600,
+    // });
 
-    return response;
+    // return response;
   } catch (error) {
     console.error("Error verifying account:", error.message); // Log error for debugging
     return NextResponse.json(
