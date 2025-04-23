@@ -53,8 +53,6 @@ export async function POST(req) {
         "Content-Disposition": `attachment; filename="expenses.csv"`,
       },
     });
-
-    return NextResponse.json(transactionData);
   } catch (error) {
     // console.log(error.message || error || "Error in Make CSV File");
     return NextResponse.json({

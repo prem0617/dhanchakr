@@ -46,7 +46,21 @@ export async function POST(req) {
       0
     );
 
-    const amount = await db.transaction.aggregate({
+    // Get transactions for the user in that month
+    const transactions = await db.transaction.findMany({
+      where: {
+        userId: userId,
+        type: "EXPENSE",
+        date: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+        accountId,
+      },
+    });
+
+    // Get total amount spent in that month
+    const total = await db.transaction.aggregate({
       where: {
         userId: userId,
         type: "EXPENSE",
@@ -65,7 +79,8 @@ export async function POST(req) {
 
     return NextResponse.json({
       budget: budget.amount.toNumber() || null,
-      currentExpense: amount._sum.amount ? amount._sum.amount.toNumber() : 0,
+      currentExpense: total._sum.amount ? total._sum.amount.toNumber() : 0,
+      transactions,
     });
   } catch (error) {
     // console.log(error.message);

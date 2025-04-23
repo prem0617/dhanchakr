@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { ArrowDownRight, ArrowUpRight, CircleX, Loader2 } from "lucide-react";
+import { CircleX, IndianRupee, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -41,9 +41,9 @@ const AccountCard = ({ data }) => {
       queryClient.setQueryData(["accounts"], (oldData) => {
         if (!oldData) return [];
         return oldData.map((acc) =>
-          acc.id === id
-            ? { ...acc, isDefault: true }
-            : { ...acc, isDefault: false }
+          acc.id === id ?
+            { ...acc, isDefault: true }
+          : { ...acc, isDefault: false }
         );
       });
       await queryClient.invalidateQueries({ queryKey: ["budget"] });
@@ -83,7 +83,7 @@ const AccountCard = ({ data }) => {
   };
 
   return (
-    <Card className="group relative overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border-none ring-1 ring-black/5">
+    <Card className="group relative overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border-none ring-1 ring-black/5 h-48">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <Link href={`account/${id}`}>
@@ -93,7 +93,7 @@ const AccountCard = ({ data }) => {
           </CardTitle>
 
           <div className="flex items-center gap-4">
-            {!isPending ? (
+            {!isPending ?
               <Switch
                 checked={data.isDefault}
                 onClick={(e) => {
@@ -106,24 +106,21 @@ const AccountCard = ({ data }) => {
                 }}
                 className="data-[state=checked]:bg-blue-600"
               />
-            ) : (
-              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-            )}
-            {deleteAccountPending ? (
+            : <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
+            {deleteAccountPending ?
               <Loader2 className="h-4 w-4 animate-spin text-red-600" />
-            ) : (
-              <CircleX
+            : <CircleX
                 onClick={(e) => handleDelete({ e, accountId: data.id })}
                 className="h-5 w-5 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
               />
-            )}
+            }
           </div>
         </CardHeader>
 
         <CardContent className="relative">
           <div className="flex flex-col space-y-1">
-            <div className="text-3xl font-bold text-gray-900">
-              ${parseFloat(balance).toFixed(2)}
+            <div className="text-2xl font-bold text-gray-900 flex items-center">
+              <IndianRupee /> {parseFloat(balance).toFixed(2)}
             </div>
             <div className="text-sm text-gray-500 font-medium">
               {type.charAt(0) + type.slice(1).toLowerCase()} Account
@@ -131,14 +128,13 @@ const AccountCard = ({ data }) => {
           </div>
         </CardContent>
 
-        <CardFooter className="relative grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+        {/* <CardFooter className="relative grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-2 text-sm">
             <div className="p-2 bg-green-50 rounded-full">
               <ArrowUpRight className="text-green-600 h-4 w-4" />
             </div>
             <div className="flex flex-col">
               <span className="text-gray-600 font-medium">Income</span>
-              {/* <span className="text-green-600 font-semibold">+$1,234.56</span> */}
             </div>
           </div>
 
@@ -148,10 +144,9 @@ const AccountCard = ({ data }) => {
             </div>
             <div className="flex flex-col">
               <span className="text-gray-600 font-medium">Expense</span>
-              {/* <span className="text-red-600 font-semibold">-$567.89</span> */}
             </div>
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Link>
     </Card>
   );

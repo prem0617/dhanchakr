@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, Lock, ChevronRight } from "lucide-react";
+import { Loader2, Mail, Lock, ChevronRight, IndianRupee } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -44,6 +44,19 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.email || !formData.password) {
+      toast.error("Email and Password are required");
+      return;
+    }
+
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     mutate(formData);
   };
 
@@ -66,7 +79,7 @@ function Login() {
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 transition-colors group-focus-within:text-blue-500" />
                   <Input
-                    type="email"
+                    type="text"
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) =>
@@ -92,17 +105,16 @@ function Login() {
                 disabled={isPending}
                 className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-300 transform hover:scale-[1.02] focus:ring-4 focus:ring-blue-300"
               >
-                {isPending ? (
+                {isPending ?
                   <>
                     <Loader2 className="animate-spin mr-2" />
                     Signing in...
                   </>
-                ) : (
-                  <>
+                : <>
                     Sign in
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </>
-                )}
+                }
               </Button>
               <div className="text-center space-y-2">
                 <p className="text-sm text-gray-600">
@@ -142,20 +154,7 @@ function Login() {
               </p>
               <div className="pt-6 animate-fade-in-up animation-delay-600">
                 <div className="inline-flex items-center justify-center p-4 bg-white/10 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-8 h-8"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                  <IndianRupee />
                 </div>
               </div>
             </div>

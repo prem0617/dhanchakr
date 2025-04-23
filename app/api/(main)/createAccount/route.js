@@ -7,25 +7,32 @@ export async function POST(req) {
     const { name, type, balance, isDefault } = await req.json();
 
     // Input Validation
+    if (!name || typeof name !== "string") {
+      return NextResponse.json(
+        { error: "Invalid name. It must be a non-empty string." },
+        { status: 400 }
+      );
+    }
+
+    if (!type || typeof type !== "string") {
+      return NextResponse.json(
+        { error: "Invalid account type. It must be a non-empty string." },
+        { status: 400 }
+      );
+    }
+
     if (
-      !name ||
-      typeof name !== "string" ||
-      !type ||
-      typeof type !== "string" ||
-      !balance
+      balance === undefined ||
+      balance === null ||
+      isNaN(parseFloat(balance))
     ) {
       return NextResponse.json(
-        {
-          error:
-            "Invalid input. Ensure all fields are provided and of the correct type.",
-        },
+        { error: "Balance must be a valid number." },
         { status: 400 }
       );
     }
 
     const userId = await getUserId(req);
-
-    // check user login chhe k nai
 
     if (!userId) {
       return NextResponse.json(
@@ -39,8 +46,6 @@ export async function POST(req) {
     });
 
     const setDefalut = exsitingAccount.length === 0 ? true : isDefault;
-
-    // Jo user new default account banave to junu default account ne nikadavu pade ..
 
     if (setDefalut) {
       await db.account.updateMany({

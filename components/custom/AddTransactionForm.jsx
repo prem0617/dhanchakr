@@ -64,31 +64,23 @@ const AddTransactionForm = ({ accounts }) => {
     { id: 4, name: "YEARLY" },
   ];
 
-  // console.log(filteredCategory);
-
   const queryClient = useQueryClient();
 
   // Use when user want to edit a Transaction
-
   let updateTransaction = false;
-
-  // console.log(formData);
 
   const { mutate } = useMutation({
     mutationFn: async ({ transactionId, updateTransaction }) => {
       try {
-        // console.log({ transactionId, updateTransaction });
         const response = await axios.post("/api/getTransactionData", {
           transactionId,
           updateTransaction,
         });
-        // console.log(response);
         if (response.error) {
           throw new Error("Error in GetTransaction");
         }
         return response.data.transactionAcc;
       } catch (error) {
-        // console.log(error.message || error || "Error in GetTransaction");
         throw new Error(error.message || error || "Error in GetTransaction");
       }
     },
@@ -101,9 +93,8 @@ const AddTransactionForm = ({ accounts }) => {
         date: data.date ? new Date(data.date) : "", // Convert date safely
         description: data.description ?? "",
         isRecurring: !!data.isRecurring, // Ensure it's a boolean
-        recurringInterval: data.isRecurring
-          ? (data.recurringInterval ?? "")
-          : "", // Handle conditionally
+        recurringInterval:
+          data.isRecurring ? (data.recurringInterval ?? "") : "", // Handle conditionally
       });
       setDate(new Date(data.date));
     },
@@ -118,7 +109,6 @@ const AddTransactionForm = ({ accounts }) => {
   }, [transactionId]);
 
   // Use when user want to make new Transaction or add edit transaction
-
   const { mutate: addTransaction, isPending } = useMutation({
     mutationFn: async function ({
       formData,
@@ -140,7 +130,7 @@ const AddTransactionForm = ({ accounts }) => {
       } = formData;
 
       try {
-        // console.log("updateTransaction", updateTransaction);
+        console.log(participants);
 
         const response = await axios.post("/api/addTransaction", {
           amount,
@@ -161,7 +151,6 @@ const AddTransactionForm = ({ accounts }) => {
           throw new Error(
             response.data.error || response.error || "Error in add transaction"
           );
-        // console.log(response);
         return response.data.transaction;
       } catch (error) {
         throw new Error(
@@ -172,7 +161,6 @@ const AddTransactionForm = ({ accounts }) => {
       }
     },
     onSuccess: async (data) => {
-      // console.log(data);
       await queryClient.invalidateQueries("accounts");
       await queryClient.invalidateQueries("accountData");
       toast.success("Transaction Added");
@@ -185,7 +173,6 @@ const AddTransactionForm = ({ accounts }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    // console.log(formData);
 
     addTransaction({
       formData,
@@ -200,7 +187,6 @@ const AddTransactionForm = ({ accounts }) => {
   };
 
   const handleScanData = (scanData) => {
-    // console.log(scanData);
     formData.amount = scanData.amount;
     if (scanData.date) {
       setDate(new Date(scanData.date));
@@ -208,64 +194,80 @@ const AddTransactionForm = ({ accounts }) => {
     }
     if (scanData.description) formData.description = scanData.description;
     if (scanData.category) formData.category = scanData.category;
-    scanData.expenseType
-      ? (formData.expenseType = scanData.expenseType)
-      : formData.expenseType;
-
-    // console.log(formData);
+    scanData.expenseType ?
+      (formData.expenseType = scanData.expenseType)
+    : formData.expenseType;
   };
 
-  // fetch split users account :
+  // First, let's update the state management to track pending status per user
+  const [pendingSplitAccounts, setPendingSplitAccounts] = useState({});
+  const [splitAccounts, setSplitAccounts] = useState({});
 
-  const [splitAccount, setSplitAccount] = useState([]);
-
-  const { mutate: getSplitAccout, isPending: pendingSplitAccount } =
-    useMutation({
-      mutationFn: async (email) => {
-        try {
-          // console.log("fetching");
-          const response = await axios.post("/api/getSplitAccounts", {
-            email,
-          });
-          // console.log(response.data);
-          if (response.error)
-            throw new Error(
-              response.error.message ||
-                response.error ||
-                "Error in find Split Account"
-            );
-          return response.data;
-        } catch (error) {
-          // console.log(error);
+  // Updated mutation to handle per-user account lookup
+  const findUserAccountMutation = useMutation({
+    mutationFn: async ({ email, index }) => {
+      try {
+        const response = await axios.post("/api/getSplitAccounts", { email });
+        if (response.error) {
           throw new Error(
-            error.message || error || "Error in find Split Account"
+            response.error.message ||
+              response.error ||
+              "Error in find Split Account"
           );
         }
-      },
-      onSuccess: (data) => {
-        // console.log(data);
-        setSplitAccount(data.accounts);
-      },
-    });
+        return { data: response.data, index };
+      } catch (error) {
+        throw new Error(
+          error.message || error || "Error in find Split Account"
+        );
+      }
+    },
+    onMutate: ({ index }) => {
+      // Set pending state for this specific index
+      setPendingSplitAccounts((prev) => ({ ...prev, [index]: true }));
+    },
+    onSuccess: ({ data, index }) => {
+      // Update accounts for this specific index
+      setSplitAccounts((prev) => ({
+        ...prev,
+        [index]: data.accounts,
+      }));
 
-  // console.log("SPLIT ACCOUNT : ", splitAccount);
+      // Update the formData with the account information if needed
+      setFormData((prev) => {
+        const updatedParticipants = [...prev.participants];
+        if (data.accounts && data.accounts.length > 0) {
+          updatedParticipants[index] = {
+            ...updatedParticipants[index],
+            accountId: data.accounts[0].id, // Default to first account
+            userId: data.accounts[0].userId, // Include userId from the account
+          };
+        }
+        return { ...prev, participants: updatedParticipants };
+      });
 
-  splitAccount &&
-    splitAccount?.map((account) => {
-      console?.log("ACCoUNT  : ", account);
-    });
+      // Clear pending state
+      setPendingSplitAccounts((prev) => ({ ...prev, [index]: false }));
+    },
+    onError: (error, { index }) => {
+      // Clear pending state on error
+      setPendingSplitAccounts((prev) => ({ ...prev, [index]: false }));
+      toast.error(error.message || "Failed to find user account");
+    },
+  });
 
   const handleFindUserAccount = ({ e, index }) => {
     e.preventDefault();
-    // console.log("button clicked");
-
     const email = formData?.participants[index]?.email;
-    // console.log(email);
 
-    getSplitAccout(email);
+    if (!email) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    findUserAccountMutation.mutate({ email, index });
   };
 
-  console.log(accounts);
   return (
     <div className="mt-5">
       <form action="" className="space-y-4" onSubmit={handleFormSubmit}>
@@ -365,17 +367,16 @@ const AddTransactionForm = ({ accounts }) => {
               />
             </SelectTrigger>
             <SelectContent>
-              {filteredCategory?.length > 0 ? (
+              {filteredCategory?.length > 0 ?
                 filteredCategory?.map((data) => (
                   <SelectItem value={data.name} key={data.id}>
                     {data.name}
                   </SelectItem>
                 ))
-              ) : (
-                <SelectItem value={"none"} disabled>
+              : <SelectItem value={"none"} disabled>
                   Please select Type of Transaction First
                 </SelectItem>
-              )}
+              }
             </SelectContent>
           </Select>
         </div>
@@ -491,7 +492,6 @@ const AddTransactionForm = ({ accounts }) => {
         {formData.isSplit && (
           <div>
             {/* Input to specify the number of users */}
-
             <label htmlFor="numberOfUser" className="text-sm font-medium">
               How many User
             </label>
@@ -503,7 +503,18 @@ const AddTransactionForm = ({ accounts }) => {
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  numberOfUsers: parseInt(e.target.value, 10) || 0, // Parse to integer
+                  numberOfUsers: parseInt(e.target.value, 10) || 0,
+                  // Initialize empty participants array when number changes
+                  participants: Array.from({
+                    length: parseInt(e.target.value, 10) || 0,
+                  }).map(
+                    (_, i) =>
+                      prev.participants[i] || {
+                        email: "",
+                        accountId: "",
+                        userId: "",
+                      }
+                  ),
                 }))
               }
             />
@@ -540,41 +551,44 @@ const AddTransactionForm = ({ accounts }) => {
                       }}
                     />
 
-                    {/* Find User's Account Button */}
-                    {pendingSplitAccount ? (
-                      <Button
-                        className="flex-1"
-                        variant="secondary"
-                        disabled
-                        onClick={(e) => handleFindUserAccount({ e, index })}
-                      >
+                    {/* Find User's Account Button - FIXED: using pendingSplitAccounts[index] */}
+                    {pendingSplitAccounts[index] ?
+                      <Button className="flex-1" variant="secondary" disabled>
                         <span className="flex items-center gap-2">
                           <Loader2 className="animate-spin" /> Loading
                         </span>
                       </Button>
-                    ) : (
-                      <Button
+                    : <Button
                         className="flex-1"
                         variant="secondary"
                         onClick={(e) => handleFindUserAccount({ e, index })}
                       >
                         Find User's Account
                       </Button>
-                    )}
+                    }
                   </div>
 
-                  {/* Account Selection Dropdown */}
+                  {/* Account Selection Dropdown - FIXED: using splitAccounts[index] */}
                   <Select
                     className="w-full"
                     value={formData.participants[index]?.accountId || ""}
                     onValueChange={(value) => {
                       setFormData((prev) => {
                         const updatedParticipants = [...prev.participants];
+
+                        // Find the selected account to get its userId
+                        const selectedAccount = splitAccounts[index]?.find(
+                          (acc) => acc.id === value
+                        );
+
                         updatedParticipants[index] = {
                           ...updatedParticipants[index],
-                          accountId: value, // Update the accountId for the current participant
+                          accountId: value,
+                          userId:
+                            selectedAccount?.userId ||
+                            updatedParticipants[index]?.userId,
                         };
-                        return { ...prev, participants: updatedParticipants }; // Return updated state
+                        return { ...prev, participants: updatedParticipants };
                       });
                     }}
                   >
@@ -582,12 +596,11 @@ const AddTransactionForm = ({ accounts }) => {
                       <SelectValue placeholder="Select Account" />
                     </SelectTrigger>
                     <SelectContent>
-                      {splitAccount && splitAccount.length > 0 ? (
-                        splitAccount.map((data) => (
+                      {splitAccounts[index] && splitAccounts[index].length > 0 ?
+                        splitAccounts[index].map((data) => (
                           <SelectItem value={data.id} key={data.id}>
-                            {/* {console.log("Account  :  ", data)} */}
                             <div className="flex gap-20 md:w-auto">
-                              <div>{data.name} </div>{" "}
+                              <div>{data.name} </div>
                               <div className="flex">
                                 <IndianRupee className="h-4 w-4" />
                                 {data.balance}
@@ -595,11 +608,10 @@ const AddTransactionForm = ({ accounts }) => {
                             </div>
                           </SelectItem>
                         ))
-                      ) : (
-                        <SelectItem value="Enter user ID" disabled>
-                          Enter User's Id
+                      : <SelectItem value="Enter user ID" disabled>
+                          Enter User's Email First
                         </SelectItem>
-                      )}
+                      }
                     </SelectContent>
                   </Select>
                 </div>
@@ -614,9 +626,9 @@ const AddTransactionForm = ({ accounts }) => {
             onClick={() => router.back()}
             className="flex-1"
           >
-            Cancle
+            Cancel
           </Button>
-          {isPending ? (
+          {isPending ?
             <Button
               disabled
               className="flex-1 bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
@@ -624,11 +636,10 @@ const AddTransactionForm = ({ accounts }) => {
               <Loader2 className="animate-spin" />
               Please wait
             </Button>
-          ) : (
-            <Button type="submit" className="flex-1">
+          : <Button type="submit" className="flex-1">
               Create Transaction
             </Button>
-          )}
+          }
         </div>
       </form>
     </div>

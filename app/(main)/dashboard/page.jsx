@@ -42,10 +42,11 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ["budget", defaultAccount],
     queryFn: async () => {
-      console.log(defaultAccount, "DEFULT");
+      // console.log(defaultAccount, "DEFULT");
       const response = await axios.post("/api/getCurrentBudget", {
         accountId: defaultAccount,
       });
+      // console.log(response);
       if (response.data.error) throw new Error(response.data.error.message);
       return response.data;
     },
@@ -53,7 +54,7 @@ const Dashboard = () => {
 
   if (accounts && accounts.length) {
     const account = accounts.find((account) => account.isDefault)?.id;
-    console.log(account, "ACCOUNT");
+    // console.log(account, "ACCOUNT");
     if (account !== defaultAccount) {
       setDefaultAccount(account);
     }
@@ -92,23 +93,23 @@ const Dashboard = () => {
           <p className="text-blue-400">Here's an overview of your finances</p>
         </div>
         <div className="bg-white px-8 py-10 rounded-t-3xl">
-          {budgetLoading ? (
+          {budgetLoading ?
             <div className="flex flex-col space-y-3">
               <Skeleton className="h-[185px] w-full rounded-xl" />
             </div>
-          ) : budget ? (
+          : budget ?
             <BudgetProgress
               initicalAmount={budget.budget}
               currentExpense={budget.currentExpense}
+              transactions={budget.transactions}
               budgetSet={true}
             />
-          ) : (
-            <BudgetProgress
+          : <BudgetProgress
               initicalAmount={0}
               currentExpense={0}
               budgetSet={false}
             />
-          )}
+          }
         </div>
       </div>
 
@@ -126,7 +127,7 @@ const Dashboard = () => {
             </Card>
           </CreateAccountDrawer>
 
-          {accounts?.length > 0 ? (
+          {accounts?.length > 0 ?
             accounts.map((data, index) => (
               <div
                 key={index}
@@ -135,11 +136,10 @@ const Dashboard = () => {
                 <AccountCard data={data} />
               </div>
             ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500 py-10">
+          : <p className="col-span-full text-center text-gray-500 py-10">
               No accounts found. Please create one.
             </p>
-          )}
+          }
         </div>
       </div>
     </div>

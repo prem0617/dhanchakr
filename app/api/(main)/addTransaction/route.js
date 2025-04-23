@@ -36,8 +36,9 @@ const updateAccountBalance = async ({
 
   // console.log(balanceAdjustment);
 
-  const updatedBalance = isSplit
-    ? account.balance.toNumber() + balanceAdjustment / totalParticipent
+  const updatedBalance =
+    isSplit ?
+      account.balance.toNumber() + balanceAdjustment / totalParticipent
     : account.balance.toNumber() + balanceAdjustment;
 
   // console.log(account.balance.toNumber());
@@ -137,9 +138,9 @@ export async function POST(req) {
 
       balanceAdjustment =
         (expenseType === "INCOME" ? numericAmount : -numericAmount) -
-        (existingTransaction.type === "INCOME"
-          ? existingTransaction.amount
-          : -existingTransaction.amount);
+        (existingTransaction.type === "INCOME" ?
+          existingTransaction.amount
+        : -existingTransaction.amount);
 
       transaction = await db.transaction.update({
         where: { id: transactionId },
@@ -152,9 +153,9 @@ export async function POST(req) {
           isRecurring,
           recurringInterval,
           nextRecurringDate:
-            isRecurring && recurringInterval
-              ? calculateNextRecurringDate(date, recurringInterval)
-              : null,
+            isRecurring && recurringInterval ?
+              calculateNextRecurringDate(date, recurringInterval)
+            : null,
         },
       });
     } else if (!isSplit) {
@@ -182,18 +183,29 @@ export async function POST(req) {
       transaction = await db.transaction.create({
         data: {
           amount: isSplit ? splitAmount : numericAmount,
-          description: isSplit ? "Split : " + description : description,
+          description:
+            isSplit ?
+              `Split : ${description} | Split with ${participantsArray.length} users (${participantsArray
+                .map((p) => {
+                  if (p.email) {
+                    return p.email;
+                  } else {
+                    return `User: ${p.userId}`;
+                  }
+                })
+                .join(", ")})`
+            : description,
           date: formattedDate,
           category,
           type: expenseType,
           isRecurring,
           recurringInterval,
           nextRecurringDate:
-            isRecurring && recurringInterval
-              ? calculateNextRecurringDate(date, recurringInterval)
-              : null,
-          user: { connect: { id: userId } },
-          account: { connect: { id: accountId } },
+            isRecurring && recurringInterval ?
+              calculateNextRecurringDate(date, recurringInterval)
+            : null,
+          user: { connect: { id: participantUserId } },
+          account: { connect: { id: participantAccountId } },
         },
       });
     }
@@ -204,11 +216,51 @@ export async function POST(req) {
       balanceAdjustment =
         expenseType === "INCOME" ? numericAmount : -numericAmount;
 
-      participantsArray = participants.map((participant) => ({
-        userId: participant.userId,
-        amount: splitAmount,
-        accountId: participant.accountId,
-      }));
+      console.log(participants, "users array");
+
+      // First, we need to get all userIds from emails
+      const participantsWithUserIds = await Promise.all(
+        participants.map(async (participant) => {
+          // If userId is already provided, use it
+          if (participant.userId) {
+            return {
+              userId: participant.userId,
+              amount: splitAmount,
+              accountId: participant.accountId,
+            };
+          }
+          // Otherwise find user by email
+          else if (participant.email) {
+            try {
+              const user = await db.user.findUnique({
+                where: { email: participant.email },
+                select: { id: true },
+              });
+
+              if (!user) {
+                console.error(`User with email ${participant.email} not found`);
+                return null;
+              }
+
+              return {
+                userId: user.id,
+                amount: splitAmount,
+                accountId: participant.accountId,
+              };
+            } catch (error) {
+              console.error(
+                `Error finding user with email ${participant.email}:`,
+                error
+              );
+              return null;
+            }
+          }
+          return null;
+        })
+      );
+
+      // Filter out any null values (users not found)
+      participantsArray = participantsWithUserIds.filter((p) => p !== null);
 
       participantsArray.push({
         userId,
@@ -216,26 +268,21 @@ export async function POST(req) {
         accountId,
       });
 
-      // console.log(participantsArray);
+      console.log({ userId, amount: splitAmount, accountId }, "mainuser");
+      console.log(participantsArray, "after user");
 
       for (let data of participantsArray) {
-        // console.log("DATA : ", data);
+        console.log("DATA : ", data);
 
-        userId = data.userId;
-        accountId = data.accountId;
+        const participantUserId = data.userId;
+        const participantAccountId = data.accountId;
 
-        if (!userId || !accountId) {
-          return NextResponse.json(
-            {
-              error:
-                "Accout id or user Id is not available for Split Transaction",
-            },
-            { status: 400 }
-          );
+        if (!participantUserId || !participantAccountId) {
+          console.error("Missing userId or accountId for participant:", data);
+          continue; // Skip this participant but continue with others
         }
 
-        // split transaction ma badha user mate transaction create karva ...
-
+        // Create transaction for each participant
         transaction = await db.transaction.create({
           data: {
             amount: isSplit ? splitAmount : numericAmount,
@@ -246,11 +293,11 @@ export async function POST(req) {
             isRecurring,
             recurringInterval,
             nextRecurringDate:
-              isRecurring && recurringInterval
-                ? calculateNextRecurringDate(date, recurringInterval)
-                : null,
-            user: { connect: { id: userId } },
-            account: { connect: { id: accountId } },
+              isRecurring && recurringInterval ?
+                calculateNextRecurringDate(date, recurringInterval)
+              : null,
+            user: { connect: { id: participantUserId } },
+            account: { connect: { id: participantAccountId } },
           },
         });
 
@@ -258,7 +305,7 @@ export async function POST(req) {
           const splitDetails = await db.splitDetails.create({
             data: {
               splitType: "EQUAL",
-              user: { connect: { id: userId } },
+              user: { connect: { id: participantUserId } },
               transaction: {
                 connect: { id: transactionId ? transactionId : transaction.id },
               },
@@ -269,19 +316,26 @@ export async function POST(req) {
           console.error("Error creating split details:", error);
         }
 
-        account = await findAccount({ accountId, userId });
-
-        // transaction aplit hoy to aek thi vadhu account ne update karva pade ...
-
-        // console.log(account);
-        const updatedAccount = await updateAccountBalance({
-          isSplit,
-          participantsArray,
-          accountId,
-          userId,
-          account,
-          balanceAdjustment,
+        // Find the account and update balance
+        const participantAccount = await findAccount({
+          accountId: participantAccountId,
+          userId: participantUserId,
         });
+
+        if (participantAccount) {
+          const updatedAccount = await updateAccountBalance({
+            isSplit,
+            participantsArray,
+            accountId: participantAccountId,
+            userId: participantUserId,
+            account: participantAccount,
+            balanceAdjustment,
+          });
+        } else {
+          console.error(
+            `Account not found for userId: ${participantUserId}, accountId: ${participantAccountId}`
+          );
+        }
       }
     } else {
       // jo split transaction na hoy to aek j account ne update karvanu aetle...

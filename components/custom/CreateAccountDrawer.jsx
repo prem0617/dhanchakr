@@ -69,6 +69,13 @@ const CreateAccountDrawer = ({ children }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ Check if balance is a valid number
+    if (isNaN(formData.balance) || formData.balance.trim() === "") {
+      toast.error("Initial Balance must be a valid number");
+      return;
+    }
+
     createAccount(formData);
   };
 
@@ -147,7 +154,7 @@ const CreateAccountDrawer = ({ children }) => {
                   Cancle
                 </Button>
               </DrawerClose>
-              {isPending ? (
+              {isPending ?
                 <Button
                   disabled
                   className=" flex-1 bg-blue-600 hover:bg-white hover:text-blue-600 hover:border-2"
@@ -155,14 +162,13 @@ const CreateAccountDrawer = ({ children }) => {
                   <Loader2 className="animate-spin" />
                   Please wait
                 </Button>
-              ) : (
-                <Button
+              : <Button
                   type="submit"
                   className="flex-1 bg-blue-500 hover:bg-blue-600"
                 >
                   Create Account
                 </Button>
-              )}
+              }
             </div>
           </form>
         </div>

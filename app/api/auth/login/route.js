@@ -7,6 +7,23 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
+    // ✅ Check for missing fields
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password are required", success: false },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Email format validation using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format", success: false },
+        { status: 400 }
+      );
+    }
+
     const isUserExist = await db.user.findUnique({ where: { email: email } });
 
     if (!isUserExist) {
