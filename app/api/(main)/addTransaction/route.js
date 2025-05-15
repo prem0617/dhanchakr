@@ -182,19 +182,8 @@ export async function POST(req) {
 
       transaction = await db.transaction.create({
         data: {
-          amount: isSplit ? splitAmount : numericAmount,
-          description:
-            isSplit ?
-              `Split : ${description} | Split with ${participantsArray.length} users (${participantsArray
-                .map((p) => {
-                  if (p.email) {
-                    return p.email;
-                  } else {
-                    return `User: ${p.userId}`;
-                  }
-                })
-                .join(", ")})`
-            : description,
+          amount: numericAmount,
+          description: description,
           date: formattedDate,
           category,
           type: expenseType,
@@ -204,8 +193,8 @@ export async function POST(req) {
             isRecurring && recurringInterval ?
               calculateNextRecurringDate(date, recurringInterval)
             : null,
-          user: { connect: { id: participantUserId } },
-          account: { connect: { id: participantAccountId } },
+          user: { connect: { id: userId } }, // FIXED: Changed from participantUserId to userId
+          account: { connect: { id: accountId } }, // FIXED: Changed from participantAccountId to accountId
         },
       });
     }
@@ -285,8 +274,8 @@ export async function POST(req) {
         // Create transaction for each participant
         transaction = await db.transaction.create({
           data: {
-            amount: isSplit ? splitAmount : numericAmount,
-            description: isSplit ? "Split : " + description : description,
+            amount: splitAmount,
+            description: "Split : " + description,
             date: formattedDate,
             category,
             type: expenseType,

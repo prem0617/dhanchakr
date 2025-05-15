@@ -1,12 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  featuresData,
-  howItWorksData,
-  statsData,
-  testimonialsData,
-} from "@/data/landing";
+import { featuresData, howItWorksData, statsData } from "@/data/landing";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -27,7 +22,7 @@ export default function Home() {
         {/* Stats Section */}
         <section className="py-24 bg-gradient-to-br from-blue-50 to-indigo-50">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 gap-8">
               {statsData.map((data, index) => (
                 <motion.div
                   key={index}
@@ -68,7 +63,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.6 }}
                 >
-                  <Card className="group card-hover border-0 bg-gradient-to-br from-white to-gray-50">
+                  <Card className="group card-hover border-0 h-full bg-gradient-to-br from-white to-gray-50">
                     <CardContent className="space-y-4 p-8">
                       <div className="text-blue-600 transform group-hover:scale-110 transition-transform duration-300">
                         {data.icon}
@@ -92,7 +87,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <h2 className="section-title">How it works</h2>
             <p className="section-description">
-              Get started with DhanChakr in three simple steps
+              Get started with DhanChakr in six simple steps
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {howItWorksData.map((data, index) => (
@@ -112,53 +107,6 @@ export default function Home() {
                   <p className="text-gray-600 leading-relaxed">
                     {data.description}
                   </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section className="py-24">
-          <div className="container mx-auto px-4">
-            <h2 className="section-title">What Our Users Say</h2>
-            <p className="section-description">
-              Trusted by thousands of users worldwide
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {testimonialsData.map((data, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                >
-                  <Card className="group card-hover border-0 bg-gradient-to-br from-white to-gray-50">
-                    <CardContent className="p-8">
-                      <div className="flex items-center mb-6 gap-4">
-                        <div className="rounded-full overflow-hidden transform group-hover:scale-110 transition-transform duration-300">
-                          <Image
-                            src={data.image || "/placeholder.svg"}
-                            alt={data.name}
-                            width={48}
-                            height={48}
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {data.name}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {data.role}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-600 leading-relaxed italic">
-                        "{data.quote}"
-                      </p>
-                    </CardContent>
-                  </Card>
                 </motion.div>
               ))}
             </div>

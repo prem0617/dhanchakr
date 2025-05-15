@@ -1,40 +1,27 @@
+import { Receipt, PieChart, IndianRupee } from "lucide-react";
+
 import {
-  BarChart3,
-  Receipt,
-  PieChart,
   CreditCard,
-  Globe,
-  Zap,
-} from "lucide-react";
+  Bank,
+  ChartBar,
+  Users,
+  FileArrowDown,
+} from "phosphor-react";
 
 // Stats Data
 export const statsData = [
   {
-    value: "50K+",
+    value: "5+",
     label: "Active Users",
   },
   {
-    value: "$2B+",
+    value: "50+",
     label: "Transactions Tracked",
-  },
-  {
-    value: "99.9%",
-    label: "Uptime",
-  },
-  {
-    value: "4.9/5",
-    label: "User Rating",
   },
 ];
 
 // Features Data
 export const featuresData = [
-  {
-    icon: <BarChart3 className="h-8 w-8 text-blue-600" />,
-    title: "Advanced Analytics",
-    description:
-      "Get detailed insights into your spending patterns with AI-powered analytics",
-  },
   {
     icon: <Receipt className="h-8 w-8 text-blue-600" />,
     title: "Smart Receipt Scanner",
@@ -44,68 +31,50 @@ export const featuresData = [
   {
     icon: <PieChart className="h-8 w-8 text-blue-600" />,
     title: "Budget Planning",
-    description: "Create and manage budgets with intelligent recommendations",
+    description: "Create and manage budgets",
   },
   {
     icon: <CreditCard className="h-8 w-8 text-blue-600" />,
     title: "Multi-Account Support",
-    description: "Manage multiple accounts and credit cards in one place",
-  },
-  {
-    icon: <Globe className="h-8 w-8 text-blue-600" />,
-    title: "Multi-Currency",
-    description: "Support for multiple currencies with real-time conversion",
-  },
-  {
-    icon: <Zap className="h-8 w-8 text-blue-600" />,
-    title: "Automated Insights",
-    description: "Get automated financial insights and recommendations",
+    description: "Manage multiple accounts",
   },
 ];
 
-// How It Works Data
 export const howItWorksData = [
   {
     icon: <CreditCard className="h-8 w-8 text-blue-600" />,
-    title: "1. Create Your Account",
+    title: "1. User Registration & Login",
     description:
-      "Get started in minutes with our simple and secure sign-up process",
+      "Sign up with your email and securely log in using OTP for authorized access.",
   },
   {
-    icon: <BarChart3 className="h-8 w-8 text-blue-600" />,
-    title: "2. Track Your Spending",
+    icon: <Bank className="h-8 w-8 text-blue-600" />,
+    title: "2. Set Up Your Accounts",
     description:
-      "Automatically categorize and track your transactions in real-time",
+      "Add your financial accounts and set a default account for easy transaction entry.",
   },
   {
-    icon: <PieChart className="h-8 w-8 text-blue-600" />,
-    title: "3. Get Insights",
+    icon: <IndianRupee className="h-8 w-8 text-blue-600" />,
+    title: "3. Add Transactions",
     description:
-      "Receive AI-powered insights and recommendations to optimize your finances",
-  },
-];
-
-// Testimonials Data
-export const testimonialsData = [
-  {
-    name: "Sarah Johnson",
-    role: "Small Business Owner",
-    image: "https://randomuser.me/api/portraits/women/75.jpg",
-    quote:
-      "Welth has transformed how I manage my business finances. The AI insights have helped me identify cost-saving opportunities I never knew existed.",
+      "Manually enter transactions or upload receipts to auto-extract details using Gemini AI.",
   },
   {
-    name: "Michael Chen",
-    role: "Freelancer",
-    image: "https://randomuser.me/api/portraits/men/75.jpg",
-    quote:
-      "The receipt scanning feature saves me hours each month. Now I can focus on my work instead of manual data entry and expense tracking.",
+    icon: <Users className="h-8 w-8 text-blue-600" />,
+    title: "4. Split Expenses",
+    description:
+      "Track and manage shared expenses with friends or family members effortlessly.",
   },
   {
-    name: "Emily Rodriguez",
-    role: "Financial Advisor",
-    image: "https://randomuser.me/api/portraits/women/74.jpg",
-    quote:
-      "I recommend Welth to all my clients. The multi-currency support and detailed analytics make it perfect for international investors.",
+    icon: <ChartBar className="h-8 w-8 text-blue-600" />,
+    title: "5. Visual Insights",
+    description:
+      "View your spending patterns in clear bar and pie charts to make informed decisions.",
+  },
+  {
+    icon: <FileArrowDown className="h-8 w-8 text-blue-600" />,
+    title: "6. Export Your Data",
+    description:
+      "Download your transaction history as CSV for offline viewing or backups.",
   },
 ];

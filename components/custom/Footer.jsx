@@ -6,9 +6,9 @@ export default function Footer() {
   return (
     <footer className="bg-white py-12">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex justify-around gap-8">
           {/* About Section */}
-          <div>
+          <div className="w-[40%]">
             <h3 className="text-xl font-semibold gradient-title mb-4">
               About DhanChakr
             </h3>
@@ -17,35 +17,6 @@ export default function Footer() {
               efficiently. We provide powerful tools to help you take control of
               your financial journey.
             </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-xl font-semibold gradient-title mb-4">
-              Quick Links
-            </h3>
-            <ul className="space-y-2 text-gray-600">
-              <li>
-                <a href="#features" className="hover:text-blue-600">
-                  Features
-                </a>
-              </li>
-              <li>
-                <a href="#how-it-works" className="hover:text-blue-600">
-                  How It Works
-                </a>
-              </li>
-              <li>
-                <a href="#testimonials" className="hover:text-blue-600">
-                  Testimonials
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-blue-600">
-                  Contact Us
-                </a>
-              </li>
-            </ul>
           </div>
 
           {/* Social Media */}

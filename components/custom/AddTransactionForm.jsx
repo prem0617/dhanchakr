@@ -427,23 +427,6 @@ const AddTransactionForm = ({ accounts }) => {
           />
         </div>
 
-        <div className="p-4 border rounded-xl flex items-center justify-between">
-          <div>
-            <p>Recurring Transaction</p>
-            <p className="text-sm text-muted-foreground">
-              Set up a recurring schedule for this transaction
-            </p>
-          </div>
-          <div>
-            <Switch
-              value={formData.isRecurring}
-              onCheckedChange={(value) =>
-                setFormData((prev) => ({ ...prev, isRecurring: value }))
-              }
-            />
-          </div>
-        </div>
-
         {formData.isRecurring && (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="interval">
